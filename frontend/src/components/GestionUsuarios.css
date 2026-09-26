@@ -1,0 +1,158 @@
+.gestion-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #1f2937;
+}
+
+.gestion-container h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    color: #6b7280;
+    margin-bottom: 2rem;
+}
+
+/* Sistema de Rejilla (Grid) */
+.gestion-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .gestion-grid {
+        grid-template-columns: 400px 1fr;
+    }
+}
+
+.gestion-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+}
+
+.gestion-card h2 {
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 0.5rem;
+}
+
+/* Alertas */
+.alerta-msg {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+.alerta-msg.exito { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.alerta-msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+
+/* Estilos de los inputs */
+.alta-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-group-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-group-panel label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.form-group-panel input, .form-group-panel select {
+    padding: 0.65rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.form-group-panel input:focus, .form-group-panel select:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.btn-alta {
+    background: #059669;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.95rem;
+}
+.btn-alta:hover { background: #047857; }
+
+/* Tablas */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.tabla-usuarios {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.tabla-usuarios th, .tabla-usuarios td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tabla-usuarios th {
+    background: #f9fafb;
+    color: #4b5563;
+    font-weight: 600;
+}
+
+.fila-inactiva {
+    background: #f9fafb;
+    color: #9ca3af;
+}
+
+/* Badges de Roles y Estado */
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.rol-administrador { background: #fee2e2; color: #991b1b; }
+.rol-farmacéutico { background: #fef3c7; color: #92400e; }
+.rol-cajero { background: #e0f2fe; color: #075985; }
+
+.badge.estado-activo { background: #d1fae5; color: #065f46; }
+.badge.estado-inactivo { background: #f3f4f6; color: #374151; }
+
+/* Botón de Baja */
+.btn-baja {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    padding: 0.35rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-baja:hover { background: #fca5a5; color: #991b1b; }
+.txt-baja { color: #9ca3af; font-size: 0.85rem; font-style: italic; }
