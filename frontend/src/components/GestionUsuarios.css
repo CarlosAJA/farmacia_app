@@ -156,3 +156,8 @@
 }
 .btn-baja:hover { background: #fca5a5; color: #991b1b; }
 .txt-baja { color: #9ca3af; font-size: 0.85rem; font-style: italic; }
+.txt-sin-sucursal {
+    color: #95a5a6;
+    font-style: italic;
+    font-size: 13px;
+}

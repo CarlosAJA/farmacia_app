@@ -19,7 +19,11 @@ const verificarToken = (req, res, next) => {
 
 const permitirRoles = (...rolesPermitidos) => {
     return (req, res, next) => {
-        if (!req.usuario || !rolesPermitidos.includes(req.usuario.rol)) {
+        // Normalizamos ambos lados a minúsculas para evitar problemas
+        const rolesNormalizados = rolesPermitidos.map(r => String(r).toLowerCase());
+        const rolUsuario = req.usuario?.rol ? String(req.usuario.rol).toLowerCase() : '';
+
+        if (!rolUsuario || !rolesNormalizados.includes(rolUsuario)) {
             return res.status(403).json({ error: 'No tienes permisos para realizar esta acción.' });
         }
         next();

@@ -1,0 +1,119 @@
+.gestion-productos {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.gestion-productos h1 { color: #2c3e50; margin-bottom: 5px; }
+.gestion-productos h3 { color: #34495e; margin: 20px 0 12px; }
+
+.subtitle { color: #7f8c8d; margin-bottom: 20px; font-size: 14px; }
+
+/* Panel de alertas */
+.panel-alertas {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.alerta-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.alerta-card .alerta-icon { font-size: 24px; }
+.alerta-card strong { font-size: 18px; }
+
+.alerta-stock { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
+.alerta-por-vencer { background: #fed7aa; color: #9a3412; border-left: 4px solid #ea580c; }
+.alerta-vencido { background: #fecaca; color: #991b1b; border-left: 4px solid #dc2626; }
+
+/* Alertas de mensaje */
+.alerta {
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+.alerta.error { background: #fee; color: #c0392b; border-left: 4px solid #c0392b; }
+.alerta.exito { background: #eafaf1; color: #229954; border-left: 4px solid #27ae60; }
+
+/* Formulario */
+.form-producto {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #e0e0e0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-grid input,
+.form-grid select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-producto textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #2c3e50;
+  padding: 8px 0;
+}
+
+.form-botones { display: flex; gap: 10px; margin-top: 10px; }
+
+.btn-primario, .btn-secundario, .btn-editar, .btn-eliminar {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.btn-primario { background: #3498db; color: white; }
+.btn-secundario { background: #95a5a6; color: white; }
+.btn-editar { background: #f39c12; color: white; margin-right: 5px; }
+.btn-eliminar { background: #e74c3c; color: white; }
+
+/* Badges de vencimiento */
+.badge-vencimiento {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-ok { background: #d4efdf; color: #196f3d; }
+.badge-proximo { background: #fef3c7; color: #92400e; }
+.badge-por-vencer { background: #fed7aa; color: #9a3412; }
+.badge-vencido { background: #fecaca; color: #991b1b; }

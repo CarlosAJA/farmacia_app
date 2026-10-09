@@ -2,69 +2,102 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('./db');
+const db = require('./src/config/db');
 const { verificarToken, permitirRoles } = require('./authMiddleware');
 
-// 1. INICIAR SESIÓN (Actualizado con tus columnas)
+// 1. INICIAR SESIÓN
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        // CORRECCIÓN: Se cambió 'activo = 1' por 'estado = "activo"'
-        const [rows] = await db.query('SELECT * FROM usuarios WHERE email = ? AND estado = "activo"', [email]);
-        if (rows.length === 0) return res.status(400).json({ error: 'Usuario no encontrado o inactivo.' });
+        const [rows] = await db.query(
+            'SELECT * FROM usuarios WHERE email = ? AND estado = "activo"',
+            [email]
+        );
+        if (rows.length === 0) {
+            return res.status(400).json({ ok: false, error: 'Usuario no encontrado o inactivo.' });
+        }
 
         const usuario = rows[0];
-        
-        // Validación temporal en texto plano (como lo tienes configurado actualmente)
-        const passwordValido = (password === usuario.password);
-        if (!passwordValido) return res.status(400).json({ error: 'Contraseña incorrecta.' });
+        const passwordValido = await bcrypt.compare(password, usuario.password);
+        if (!passwordValido) {
+            return res.status(400).json({ ok: false, error: 'Contraseña incorrecta.' });
+        }
 
-        // Guardamos el id_usuario y mapeamos el rol 'admin' a 'Administrador' para el frontend
-        const rolFormateado = usuario.rol === 'admin' ? 'Administrador' : usuario.rol;
-        const token = jwt.sign({ id: usuario.id_usuario, rol: rolFormateado }, process.env.JWT_SECRET, { expiresIn: '8h' });
-        
-        res.json({ token, usuario: { id: usuario.id_usuario, nombre: usuario.nombre, rol: rolFormateado } });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 2. REGISTRO / ALTA DE USUARIO (Actualizado con tus columnas)
-router.post('/registro', verificarToken, permitirRoles('Administrador'), async (req, res) => {
-    const { nombre, email, password, rol } = req.body;
-    try {
-        // Ajustamos las columnas para insertar los valores mínimos requeridos por tu tabla
-        const rolBD = rol === 'Administrador' ? 'admin' : rol.toLowerCase();
-        
-        await db.query(
-            'INSERT INTO usuarios (nombre, apellido, email, password, telefono, direccion, rol, estado) VALUES (?, "", ?, ?, "", "", ?, "activo")',
-            [nombre, email, password, rolBD]
+        const token = jwt.sign(
+            { id: usuario.id_usuario, rol: usuario.rol },
+            process.env.JWT_SECRET,
+            { expiresIn: '8h' }
         );
-        res.status(201).json({ mensaje: 'Usuario registrado exitosamente.' });
+
+        res.json({
+            ok: true,
+            data: {
+                token,
+                usuario: {
+                    id: usuario.id_usuario,
+                    nombre: usuario.nombre,
+                    rol: usuario.rol,
+                },
+            },
+        });
     } catch (err) {
-        res.status(500).json({ error: 'Error al registrar: ' + err.message });
+        res.status(500).json({ ok: false, error: err.message });
     }
 });
 
-// 3. LISTAR USUARIOS (Actualizado con tus columnas)
-router.get('/', verificarToken, permitirRoles('Administrador'), async (req, res) => {
+// 2. REGISTRO / ALTA DE USUARIO
+router.post('/registro', verificarToken, permitirRoles('admin'), async (req, res) => {
+    const { nombre, email, password, rol, sucursal_id } = req.body;
     try {
-        // Seleccionamos tus columnas reales
-        const [usuarios] = await db.query('SELECT id_usuario, nombre, email, rol, estado FROM usuarios');
-        res.json(usuarios);
+        const ROLES_VALIDOS = ['admin', 'vendedor', 'farmaceutico', 'almacenero'];
+        const rolBD = ROLES_VALIDOS.includes(rol) ? rol : 'vendedor';
+        const hash = await bcrypt.hash(password, 10);
+
+        await db.query(
+            `INSERT INTO usuarios
+                (nombre, apellido, email, password, telefono, direccion, rol, estado, sucursal_id)
+             VALUES (?, "", ?, ?, "", "", ?, "activo", ?)`,
+            [nombre, email, hash, rolBD, sucursal_id || null]
+        );
+        res.status(201).json({ ok: true, mensaje: 'Usuario registrado exitosamente.' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ ok: false, error: 'Error al registrar: ' + err.message });
     }
 });
 
-// 4. BAJA LÓGICA DE USUARIO (Actualizado con tus columnas)
-router.put('/baja/:id', verificarToken, permitirRoles('Administrador'), async (req, res) => {
+// 3. LISTAR USUARIOS
+router.get('/', verificarToken, permitirRoles('admin'), async (req, res) => {
     try {
-        // CORRECCIÓN: Se cambia 'activo = 0' por 'estado = "inactivo"' e 'id' por 'id_usuario'
-        await db.query('UPDATE usuarios SET estado = "inactivo" WHERE id_usuario = ?', [req.params.id]);
-        res.json({ mensaje: 'Usuario dado de baja correctamente.' });
+        const [usuarios] = await db.query(`
+            SELECT
+                u.id_usuario,
+                u.nombre,
+                u.email,
+                u.rol,
+                u.estado,
+                u.sucursal_id,
+                s.nombre AS sucursal_nombre,
+                s.codigo AS sucursal_codigo
+            FROM usuarios u
+            LEFT JOIN sucursales s ON u.sucursal_id = s.id
+            ORDER BY u.id_usuario
+        `);
+        res.json({ ok: true, data: usuarios });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
+// 4. BAJA LÓGICA DE USUARIO
+router.put('/baja/:id', verificarToken, permitirRoles('admin'), async (req, res) => {
+    try {
+        await db.query(
+            'UPDATE usuarios SET estado = "inactivo" WHERE id_usuario = ?',
+            [req.params.id]
+        );
+        res.json({ ok: true, mensaje: 'Usuario dado de baja correctamente.' });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: err.message });
     }
 });
 

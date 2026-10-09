@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./db');
+const db = require('./src/config/db');
 require('dotenv').config();
 
 const app = express();
@@ -11,6 +11,13 @@ app.use(express.json());
 
 // Enrutamiento de usuarios (Login, Altas, Bajas)
 app.use('/api/usuarios', require('./usuarios'));
+app.use('/api/sucursales', require('./src/modules/sucursales'));
+
+// ✨ Nuevas rutas del módulo de productos
+app.use('/api/categorias', require('./src/modules/categorias'));
+app.use('/api/laboratorios', require('./src/modules/laboratorios'));
+app.use('/api/proveedores', require('./src/modules/proveedores'));
+app.use('/api/productos', require('./src/modules/productos'));
 
 // Ruta base de prueba
 app.get('/', (req, res) => {

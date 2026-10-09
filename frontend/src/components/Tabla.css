@@ -1,0 +1,195 @@
+/* frontend/src/components/Tabla.css */
+.tabla-generica {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tabla-generica thead {
+  background: #34495e;
+}
+
+.tabla-generica th {
+  color: white;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.tabla-generica td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.tabla-generica tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-generica tbody tr:hover {
+  background: #f5f7fa;
+}
+
+.tabla-cargando {
+  padding: 30px;
+  text-align: center;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+.tabla-sin-datos {
+  padding: 30px;
+  text-align: center;
+  color: #7f8c8d;
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.tabla-wrapper {
+  width: 100%;
+}
+
+.tabla-filtros {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.filtro-busqueda {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.filtro-busqueda:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.filtro-select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.filtro-select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.btn-limpiar-filtros {
+  padding: 8px 12px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: opacity 0.2s;
+}
+
+.btn-limpiar-filtros:hover {
+  opacity: 0.9;
+}
+
+.filtro-contador {
+  margin-left: auto;
+  font-size: 13px;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.tabla-scroll {
+  overflow-x: auto;
+}
+
+/* ============ PAGINACIÓN ============ */
+.tabla-paginacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding: 12px 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.paginacion-izquierda,
+.paginacion-derecha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.paginacion-izquierda label {
+  font-size: 13px;
+  color: #555;
+}
+
+.paginacion-por-pagina {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  background: white;
+  cursor: pointer;
+}
+
+.paginacion-registros {
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+.paginacion-info {
+  font-size: 13px;
+  color: #2c3e50;
+  font-weight: 500;
+  padding: 0 12px;
+}
+
+.btn-pagina {
+  padding: 6px 14px;
+  border: 1px solid #3498db;
+  background: white;
+  color: #3498db;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-pagina:hover:not(:disabled) {
+  background: #3498db;
+  color: white;
+}
+
+.btn-pagina:disabled {
+  border-color: #ccc;
+  color: #ccc;
+  cursor: not-allowed;
+  background: #f8f9fa;
+}

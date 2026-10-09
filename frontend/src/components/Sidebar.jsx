@@ -12,8 +12,9 @@ const Sidebar = () => {
         navigate('/login');
     };
 
-    // Si por alguna razón no hay usuario, no mostramos el menú
     if (!user) return null;
+
+    const esAdmin = user.rol?.toLowerCase() === 'administrador' || user.rol?.toLowerCase() === 'admin';
 
     return (
         <div className="sidebar">
@@ -25,8 +26,8 @@ const Sidebar = () => {
                 </div>
             </div>
 
+            {/* 🛒 VISTAS COMUNES / VENDEDOR */}
             <nav className="sidebar-menu">
-                {/* 🛒 VISTAS COMUNES / VENDEDOR */}
                 <p className="menu-section-title">Operaciones</p>
                 <NavLink to="/dashboard" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                     📊 Panel Principal
@@ -37,23 +38,29 @@ const Sidebar = () => {
                 <NavLink to="/inventario" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                     📦 Ver Inventario
                 </NavLink>
-
-                {/* ⚙️ VISTAS EXCLUSIVAS DEL ADMINISTRADOR */}
-                {user.rol === 'Administrador' && (
-                    <>
-                        <p className="menu-section-title">Administración</p>
-                        <NavLink to="/compras" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
-                            📥 Registrar Compra
-                        </NavLink>
-                        <NavLink to="/usuarios" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
-                            👥 Gestión de Usuarios
-                        </NavLink>
-                        <NavLink to="/reportes" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
-                            📈 Reportes y Gráficos
-                        </NavLink>
-                    </>
-                )}
             </nav>
+
+            {/* ⚙️ VISTAS EXCLUSIVAS DEL ADMINISTRADOR */}
+            {esAdmin && (
+                <nav className="sidebar-menu">
+                    <p className="menu-section-title">Administración</p>
+                    <NavLink to="/compras" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        📥 Registrar Compra
+                    </NavLink>
+                    <NavLink to="/sucursales" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        🏢 Gestión de Sucursales
+                    </NavLink>
+                    <NavLink to="/productos" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        💊 Productos
+                    </NavLink>
+                    <NavLink to="/usuarios" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        👥 Gestión de Usuarios
+                    </NavLink>
+                    <NavLink to="/reportes" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        📈 Reportes y Gráficos
+                    </NavLink>
+                </nav>
+            )}
 
             <div className="sidebar-footer">
                 <button onClick={handleLogout} className="logout-button">
