@@ -1,0 +1,318 @@
+.punto-venta {
+  padding: 20px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.punto-venta h1 {
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.subtitulo {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.alerta {
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.alerta.error {
+  background: #fee;
+  color: #c0392b;
+  border-left: 4px solid #c0392b;
+}
+
+.alerta.exito {
+  background: #eafaf1;
+  color: #229954;
+  border-left: 4px solid #27ae60;
+}
+
+.pos-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .pos-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pos-izquierda,
+.pos-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.card {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.card h2 {
+  font-size: 17px;
+  color: #34495e;
+  margin: 0 0 12px;
+}
+
+.card label {
+  display: block;
+  font-size: 13px;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.card select,
+.card input[type='text'] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.busqueda-card {
+  position: relative;
+}
+
+.resultados-busqueda {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.resultado-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  transition: background 0.15s;
+}
+
+.resultado-item:hover {
+  background: #eaf4fc;
+}
+
+.resultado-item:last-child {
+  border-bottom: none;
+}
+
+.resultado-info {
+  flex: 1;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.resultado-presentacion {
+  font-size: 12px;
+  color: #7f8c8d;
+  margin-top: 2px;
+}
+
+.resultado-precio {
+  font-weight: bold;
+  color: #27ae60;
+  font-size: 15px;
+}
+
+.tabla-carrito {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.tabla-carrito th,
+.tabla-carrito td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 13px;
+}
+
+.tabla-carrito th {
+  background: #ecf0f1;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.carrito-presentacion {
+  font-size: 11px;
+  color: #7f8c8d;
+}
+
+.input-cantidad {
+  width: 60px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.input-precio {
+  width: 80px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: right;
+}
+
+.btn-eliminar-carrito {
+  padding: 4px 8px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-vaciar {
+  margin-top: 12px;
+  padding: 6px 14px;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.card-pago {
+  position: sticky;
+  top: 20px;
+  background: white;
+  border: 2px solid #3498db;
+}
+
+.linea-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+.linea-total.total-final {
+  border-top: 2px solid #2c3e50;
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #c0392b;
+}
+
+.input-descuento {
+  width: 100px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: right;
+  font-size: 14px;
+}
+
+.label-pago {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-size: 13px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.card-pago select,
+.card-pago textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.btn-cobrar {
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.btn-cobrar:hover:not(:disabled) {
+  background: #229954;
+}
+
+.btn-cobrar:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.btn-ver-historial {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background: transparent;
+  color: #3498db;
+  border: 1px solid #3498db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-ver-historial:hover {
+  background: #eaf4fc;
+}
+
+.sin-datos {
+  color: #95a5a6;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+.btn-imprimir-factura-panel {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  background: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
+}
+.btn-imprimir-factura-panel:hover {
+  background: #d35400;
+}

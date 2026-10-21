@@ -1,163 +1,202 @@
-.gestion-container {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #1f2937;
+.gestion-usuarios {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.gestion-container h1 {
-    font-size: 2rem;
-    margin-bottom: 0.25rem;
+.gestion-usuarios h1 {
+  color: #2c3e50;
+  margin-bottom: 5px;
+  font-size: 28px;
+  text-align: center;
 }
 
-.subtitle {
-    color: #6b7280;
-    margin-bottom: 2rem;
+.gestion-usuarios .subtitle {
+  color: #7f8c8d;
+  margin-bottom: 25px;
+  font-size: 14px;
+  text-align: center;
 }
 
-/* Sistema de Rejilla (Grid) */
-.gestion-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
+.gestion-usuarios .titulo-tabla {
+  color: #34495e;
+  margin: 30px 0 15px;
+  font-size: 20px;
+  text-align: center;
 }
 
-@media (min-width: 768px) {
-    .gestion-grid {
-        grid-template-columns: 400px 1fr;
-    }
-}
-
-.gestion-card {
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e5e7eb;
-}
-
-.gestion-card h2 {
-    font-size: 1.25rem;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #f3f4f6;
-    padding-bottom: 0.5rem;
-}
-
-/* Alertas */
+/* ============ ALERTAS ============ */
 .alerta-msg {
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-    text-align: center;
-}
-.alerta-msg.exito { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
-.alerta-msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
-
-/* Estilos de los inputs */
-.alta-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+  padding: 12px 18px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
 }
 
-.form-group-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+.alerta-msg.exito {
+  background: #d4efdf;
+  color: #196f3d;
+  border-left: 4px solid #27ae60;
 }
 
-.form-group-panel label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #4b5563;
+.alerta-msg.error {
+  background: #fadbd8;
+  color: #922b21;
+  border-left: 4px solid #e74c3c;
 }
 
-.form-group-panel input, .form-group-panel select {
-    padding: 0.65rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    outline: none;
+/* ============ FORMULARIO ============ */
+.form-usuario {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.form-group-panel input:focus, .form-group-panel select:focus {
-    border-color: #059669;
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+.form-usuario h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 20px;
+  text-align: center;
 }
 
-.btn-alta {
-    background: #059669;
-    color: white;
-    border: none;
-    padding: 0.75rem;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    font-size: 0.95rem;
-}
-.btn-alta:hover { background: #047857; }
-
-/* Tablas */
-.table-responsive {
-    overflow-x: auto;
+.form-usuario form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.tabla-usuarios {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 0.95rem;
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
 }
 
-.tabla-usuarios th, .tabla-usuarios td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
+.form-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.tabla-usuarios th {
-    background: #f9fafb;
-    color: #4b5563;
-    font-weight: 600;
+.form-grid label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #34495e;
 }
 
-.fila-inactiva {
-    background: #f9fafb;
-    color: #9ca3af;
+.form-grid input,
+.form-grid select {
+  padding: 10px 12px;
+  border: 1px solid #d5d8dc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Badges de Roles y Estado */
+.form-grid input:focus,
+.form-grid select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.form-botones {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 5px;
+}
+
+.btn-primario {
+  padding: 10px 22px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-primario:hover:not(:disabled) {
+  background: #229954;
+}
+
+.btn-primario:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* ============ BADGES ============ */
 .badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  white-space: nowrap;
 }
-.rol-administrador { background: #fee2e2; color: #991b1b; }
-.rol-farmacéutico { background: #fef3c7; color: #92400e; }
-.rol-cajero { background: #e0f2fe; color: #075985; }
 
-.badge.estado-activo { background: #d1fae5; color: #065f46; }
-.badge.estado-inactivo { background: #f3f4f6; color: #374151; }
+.rol-admin {
+  background: #d6eaf8;
+  color: #1b4f72;
+}
 
-/* Botón de Baja */
+.rol-vendedor {
+  background: #d5f5e3;
+  color: #196f3d;
+}
+
+.rol-farmaceutico {
+  background: #fdebd0;
+  color: #7e5109;
+}
+
+.rol-almacenero {
+  background: #e8daef;
+  color: #512e5f;
+}
+
+.estado-activo {
+  background: #d4efdf;
+  color: #196f3d;
+}
+
+.estado-inactivo {
+  background: #fadbd8;
+  color: #922b21;
+}
+
+/* ============ BOTONES DE ACCIÓN ============ */
 .btn-baja {
-    background: #fee2e2;
-    color: #dc2626;
-    border: 1px solid #fca5a5;
-    padding: 0.35rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
+  padding: 6px 14px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.2s;
+  white-space: nowrap;
 }
-.btn-baja:hover { background: #fca5a5; color: #991b1b; }
-.txt-baja { color: #9ca3af; font-size: 0.85rem; font-style: italic; }
+
+.btn-baja:hover {
+  background: #c0392b;
+}
+
+.txt-baja {
+  color: #95a5a6;
+  font-style: italic;
+  font-size: 13px;
+}
+
 .txt-sin-sucursal {
-    color: #95a5a6;
-    font-style: italic;
-    font-size: 13px;
+  color: #95a5a6;
+  font-style: italic;
+  font-size: 13px;
+  white-space: nowrap;
 }

@@ -12,12 +12,16 @@ app.use(express.json());
 // Enrutamiento de usuarios (Login, Altas, Bajas)
 app.use('/api/usuarios', require('./usuarios'));
 app.use('/api/sucursales', require('./src/modules/sucursales'));
-
+app.use('/api/inventario', require('./src/modules/inventario'));
+app.use('/api/compras', require('./src/modules/compras'));
+app.use('/api/catalogos', require('./src/modules/catalogos'));
 // ✨ Nuevas rutas del módulo de productos
 app.use('/api/categorias', require('./src/modules/categorias'));
 app.use('/api/laboratorios', require('./src/modules/laboratorios'));
 app.use('/api/proveedores', require('./src/modules/proveedores'));
 app.use('/api/productos', require('./src/modules/productos'));
+app.use('/api/ventas', require('./src/modules/ventas'));
+app.use('/api/reportes', require('./src/modules/reportes'));
 
 // Ruta base de prueba
 app.get('/', (req, res) => {

@@ -1,0 +1,193 @@
+.registrar-compra {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.registrar-compra h1 {
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.subtitulo {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.alerta.error {
+  padding: 10px 15px;
+  border-radius: 6px;
+  background: #fee;
+  color: #c0392b;
+  border-left: 4px solid #c0392b;
+  margin-bottom: 15px;
+}
+
+.card {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  color: #34495e;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.form-grid-detalle {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: #2c3e50;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.btn-agregar {
+  padding: 8px 16px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn-agregar:hover {
+  opacity: 0.9;
+}
+
+.tabla-detalle {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.tabla-detalle th,
+.tabla-detalle td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 14px;
+}
+
+.tabla-detalle th {
+  background: #ecf0f1;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.btn-eliminar-detalle {
+  padding: 4px 8px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sin-datos {
+  color: #95a5a6;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+}
+
+.totales-card {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.totales {
+  min-width: 300px;
+}
+
+.linea {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 15px;
+}
+
+.linea.total {
+  border-top: 2px solid #2c3e50;
+  margin-top: 10px;
+  padding-top: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.input-descuento {
+  width: 100px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: right;
+}
+
+.botones-finales {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.btn-primario,
+.btn-secundario {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.btn-primario {
+  background: #3498db;
+  color: white;
+}
+
+.btn-primario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secundario {
+  background: #95a5a6;
+  color: white;
+}

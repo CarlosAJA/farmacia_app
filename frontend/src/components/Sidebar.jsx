@@ -33,10 +33,10 @@ const Sidebar = () => {
                     📊 Panel Principal
                 </NavLink>
                 <NavLink to="/ventas" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
-                    🛒 Nueva Venta
+                    📋 Historial de Venta
                 </NavLink>
-                <NavLink to="/inventario" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
-                    📦 Ver Inventario
+                <NavLink to="/pos" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                    🛒 Nueva de Venta
                 </NavLink>
             </nav>
 
@@ -44,14 +44,17 @@ const Sidebar = () => {
             {esAdmin && (
                 <nav className="sidebar-menu">
                     <p className="menu-section-title">Administración</p>
-                    <NavLink to="/compras" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
-                        📥 Registrar Compra
-                    </NavLink>
                     <NavLink to="/sucursales" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                         🏢 Gestión de Sucursales
                     </NavLink>
                     <NavLink to="/productos" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                         💊 Productos
+                    </NavLink>
+                    <NavLink to="/inventario" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        📦 Inventario
+                    </NavLink>
+                    <NavLink to="/compras" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        📥 Gestión de Compras
                     </NavLink>
                     <NavLink to="/usuarios" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                         👥 Gestión de Usuarios

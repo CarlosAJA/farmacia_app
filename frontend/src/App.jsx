@@ -2,21 +2,23 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { AuthProvider } from './AuthContext';
 import Sidebar from './components/Sidebar';
 import Login from './components/Login';
-import DashboardFarmacia from './components/DashboardFarmacia';
 import GestionUsuarios from './components/GestionUsuarios';
-import GestionSucursales from './components/GestionSucursales';   // 👈 NUEVO
+import GestionSucursales from './components/GestionSucursales';
 import GestionProductos from './components/GestionProductos';
+import GestionInventario from './components/GestionInventario';
+import RegistrarCompra from './components/RegistrarCompra';
+import GestionCompras from './components/GestionCompras';
+import PuntoVenta from './components/PuntoVenta';
+import GestionVentas from './components/GestionVentas';
+import Dashboard from './components/Dashboard';
 import RutaProtegida from './RutaProtegida';
-
 import './App.css';
 
-// Componente Layout oficial para React Router v7 usando Outlet
 function LayoutConMenu() {
     return (
         <div className="app-layout">
             <Sidebar />
             <main className="app-main-content">
-                {/* El Outlet le indica a React Router exactamente dónde inyectar la sub-ruta activa */}
                 <Outlet />
             </main>
         </div>
@@ -40,30 +42,58 @@ function App() {
                             <LayoutConMenu />
                         </RutaProtegida>
                     }>
-                        {/* Se renderiza en el Outlet al entrar a /dashboard */}
-                        <Route path="/dashboard" element={<DashboardFarmacia />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
                         
-                        {/* Se renderiza en el Outlet al entrar a /usuarios (Filtro por Rol) */}
                         <Route path="/usuarios" element={
                             <RutaProtegida rolesPermitidos={['Administrador', 'admin']}>
                                 <GestionUsuarios />
                             </RutaProtegida>
                         } />
+                        
+                        <Route path="/pos" element={
+                            <RutaProtegida rolesPermitidos={['admin', 'vendedor']}>
+                                <PuntoVenta />
+                            </RutaProtegida>
+                        } />
 
-                         {/* ✨ NUEVO: Ruta de sucursales */}
+                        <Route path="/ventas" element={
+                            <RutaProtegida rolesPermitidos={['admin', 'vendedor']}>
+                                <GestionVentas />
+                            </RutaProtegida>
+                        } />
+
                         <Route path="/sucursales" element={
                             <RutaProtegida rolesPermitidos={['Administrador', 'admin']}>
                                 <GestionSucursales />
                             </RutaProtegida>
                         } />
+                        
                         <Route path="/productos" element={
                             <RutaProtegida rolesPermitidos={['Administrador', 'admin']}>
                                 <GestionProductos />
                             </RutaProtegida>
                         } />
+                        
+                        <Route path="/inventario" element={
+                            <RutaProtegida rolesPermitidos={['admin', 'almacenero', 'farmaceutico']}>
+                                <GestionInventario />
+                            </RutaProtegida>
+                        } />
+                        
+                        <Route path="/compras" element={
+                            <RutaProtegida rolesPermitidos={['admin', 'almacenero']}>
+                                <GestionCompras />
+                            </RutaProtegida>
+                        } />
+                        
+                        <Route path="/compras/nueva" element={
+                            <RutaProtegida rolesPermitidos={['admin', 'almacenero']}>
+                                <RegistrarCompra />
+                            </RutaProtegida>
+                        } />
                     </Route>
 
-                    {/* 4. Ruta comodín por si escriben cualquier otra cosa */}
+                    {/* 4. Ruta comodín */}
                     <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes>
             </BrowserRouter>

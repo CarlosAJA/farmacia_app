@@ -1,0 +1,1 @@
+module.exports = require('./reportes.routes.js');

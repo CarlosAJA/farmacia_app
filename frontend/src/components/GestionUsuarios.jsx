@@ -122,8 +122,8 @@ const GestionUsuarios = () => {
         },
     ];
 
-    return (
-        <div className="gestion-container">
+        return (
+        <div className="gestion-usuarios">
             <h1>Control del Personal de Farmacia</h1>
             <p className="subtitle">
                 Sección exclusiva para la administración de altas, bajas y asignación de roles.
@@ -133,12 +133,12 @@ const GestionUsuarios = () => {
                 <div className={`alerta-msg ${mensaje.tipo}`}>{mensaje.texto}</div>
             )}
 
-            <div className="gestion-grid">
-                {/* FORMULARIO DE ALTA */}
-                <div className="gestion-card form-section">
-                    <h2>Registrar Nuevo Empleado</h2>
-                    <form onSubmit={handleAlta} className="alta-form">
-                        <div className="form-group-panel">
+            {/* FORMULARIO */}
+            <div className="form-usuario">
+                <h3>Registrar Nuevo Empleado</h3>
+                <form onSubmit={handleAlta}>
+                    <div className="form-grid">
+                        <div>
                             <label>Nombre Completo</label>
                             <input
                                 type="text"
@@ -149,7 +149,7 @@ const GestionUsuarios = () => {
                             />
                         </div>
 
-                        <div className="form-group-panel">
+                        <div>
                             <label>Correo Electrónico</label>
                             <input
                                 type="email"
@@ -160,7 +160,7 @@ const GestionUsuarios = () => {
                             />
                         </div>
 
-                        <div className="form-group-panel">
+                        <div>
                             <label>Contraseña Inicial</label>
                             <input
                                 type="password"
@@ -171,7 +171,7 @@ const GestionUsuarios = () => {
                             />
                         </div>
 
-                        <div className="form-group-panel">
+                        <div>
                             <label>Rol del Empleado</label>
                             <select value={rol} onChange={(e) => setRol(e.target.value)}>
                                 <option value="vendedor">Cajero (Punto de Venta)</option>
@@ -181,7 +181,7 @@ const GestionUsuarios = () => {
                             </select>
                         </div>
 
-                        <div className="form-group-panel">
+                        <div>
                             <label>Sucursal Asignada</label>
                             <select
                                 value={sucursalId}
@@ -197,61 +197,61 @@ const GestionUsuarios = () => {
                                     ))}
                             </select>
                         </div>
+                    </div>
 
-                        <button type="submit" className="btn-alta" disabled={cargando}>
+                    <div className="form-botones">
+                        <button type="submit" className="btn-primario" disabled={cargando}>
                             {cargando ? 'Guardando...' : 'Dar de Alta Empleado'}
                         </button>
-                    </form>
-                </div>
-
-                {/* TABLA DE USUARIOS */}
-                <div className="gestion-card table-section">
-                    <h2>Lista de Personal</h2>
-                    <Tabla
-                        columnas={columnas}
-                        datos={usuarios}
-                        cargando={cargando}
-                        sinDatosMensaje="No hay usuarios registrados."
-                        clave="id_usuario"
-                        busquedaActiva={true}
-                        camposBusqueda={['nombre', 'email']}
-                        filtros={[
-                            {
-                            key: 'rol',
-                            label: 'Todos los roles',
-                            opciones: [
-                                { value: 'admin', label: 'Admin' },
-                                { value: 'vendedor', label: 'Vendedor' },
-                                { value: 'farmaceutico', label: 'Farmacéutico' },
-                                { value: 'almacenero', label: 'Almacenero' },
-                            ],
-                            },
-                            {
-                            key: 'estado',
-                            label: 'Todos los estados',
-                            opciones: [
-                                { value: 'activo', label: 'Activos' },
-                                { value: 'inactivo', label: 'Inactivos' },
-                            ],
-                            },
-                        ]}
-                        paginacionActiva={true}       
-                        porPaginaInicial={10}         
-                        acciones={(u) =>
-                            u.estado === 'activo' ? (
-                                <button
-                                    onClick={() => handleBaja(u.id_usuario, u.nombre)}
-                                    className="btn-baja"
-                                >
-                                    Dar Baja
-                                </button>
-                            ) : (
-                                <span className="txt-baja">Inhabilitado</span>
-                            )
-                        }
-                    />
-                </div>
+                    </div>
+                </form>
             </div>
+
+            {/* TABLA */}
+            <h3 className="titulo-tabla">Lista de Personal</h3>
+            <Tabla
+                columnas={columnas}
+                datos={usuarios}
+                cargando={cargando}
+                sinDatosMensaje="No hay usuarios registrados."
+                clave="id_usuario"
+                busquedaActiva={true}
+                camposBusqueda={['nombre', 'email']}
+                filtros={[
+                    {
+                        key: 'rol',
+                        label: 'Todos los roles',
+                        opciones: [
+                            { value: 'admin', label: 'Admin' },
+                            { value: 'vendedor', label: 'Vendedor' },
+                            { value: 'farmaceutico', label: 'Farmacéutico' },
+                            { value: 'almacenero', label: 'Almacenero' },
+                        ],
+                    },
+                    {
+                        key: 'estado',
+                        label: 'Todos los estados',
+                        opciones: [
+                            { value: 'activo', label: 'Activos' },
+                            { value: 'inactivo', label: 'Inactivos' },
+                        ],
+                    },
+                ]}
+                paginacionActiva={true}
+                porPaginaInicial={10}
+                acciones={(u) =>
+                    u.estado === 'activo' ? (
+                        <button
+                            onClick={() => handleBaja(u.id_usuario, u.nombre)}
+                            className="btn-baja"
+                        >
+                            Dar Baja
+                        </button>
+                    ) : (
+                        <span className="txt-baja">Inhabilitado</span>
+                    )
+                }
+            />
         </div>
     );
 };
