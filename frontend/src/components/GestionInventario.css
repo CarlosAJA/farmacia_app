@@ -170,3 +170,27 @@
   background: #95a5a6;
   color: white;
 }
+
+.btn-traspaso {
+  padding: 6px 14px;
+  background: #8e44ad; /* Morado */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-excel {
+  padding: 10px 20px;
+  background: #27ae60; /* Verde Excel */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+.btn-excel:hover {
+  background: #219150;
+}

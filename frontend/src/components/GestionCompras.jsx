@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Tabla from './Tabla';
 import { comprasApi, catalogosApi } from '../api/compras';
+import { exportarAExcel } from '../utils/excelUtils';
 import './GestionCompras.css';
 
 export default function GestionCompras() {
@@ -105,6 +106,37 @@ export default function GestionCompras() {
       render: (c) => badgeEstado(c.estado),
     },
   ];
+  const handleExportar = () => {
+    const columnasExcel = [
+      { key: 'numero_orden', label: 'Nº Orden' },
+      { key: 'proveedor_nombre', label: 'Proveedor' },
+      { key: 'almacen_nombre', label: 'Almacén' },
+      { 
+        key: 'fecha_compra', 
+        label: 'Fecha de Compra',
+        exportValue: (c) => new Date(c.fecha_compra).toLocaleDateString('es-BO')
+      },
+      { 
+        key: 'subtotal', 
+        label: 'Subtotal (Bs.)',
+        exportValue: (c) => Number(c.subtotal)
+      },
+      { 
+        key: 'iva', 
+        label: 'IVA (Bs.)',
+        exportValue: (c) => Number(c.iva)
+      },
+      { 
+        key: 'total', 
+        label: 'Total (Bs.)',
+        exportValue: (c) => Number(c.total)
+      },
+      { key: 'estado', label: 'Estado' },
+    ];
+    
+    exportarAExcel(compras, columnasExcel, 'Reporte_Compras');
+  };
+  
 
   return (
     <div className="gestion-compras">
@@ -113,9 +145,7 @@ export default function GestionCompras() {
           <h1>Gestión de Compras</h1>
           <p className="subtitulo">Historial de órdenes de compra a proveedores.</p>
         </div>
-        <button onClick={() => navigate('/compras/nueva')} className="btn-primario">
-          + Nueva Compra
-        </button>
+        
       </div>
 
       {mensaje.texto && <div className={`alerta ${mensaje.tipo}`}>{mensaje.texto}</div>}
@@ -149,7 +179,15 @@ export default function GestionCompras() {
           value={filtros.busqueda}
           onChange={(e) => setFiltros({ ...filtros, busqueda: e.target.value })}
         />
-      </div>
+     
+      <button onClick={() => navigate('/compras/nueva')} className="btn-primario">
+          + Nueva Compra
+        </button>
+        
+            <button onClick={handleExportar} className="btn-excel">
+              📊 Exportar a Excel
+            </button>
+        </div>
 
       <Tabla
         columnas={columnas}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Tabla from './Tabla';
 import { ventasApi } from '../api/ventas';
 import FacturaModal from './FacturaModal';
+import { exportarAExcel } from '../utils/excelUtils';
 import './GestionVentas.css';
 
 export default function GestionVentas() {
@@ -111,6 +112,38 @@ export default function GestionVentas() {
       render: (v) => badgeEstado(v.estado),
     },
   ];
+   const handleExportar = () => {
+    // Definimos cómo queremos que se vean las columnas en Excel
+    const columnasExcel = [
+      { key: 'numero_factura', label: 'Nº Factura' },
+      { 
+        key: 'fecha_venta', 
+        label: 'Fecha',
+        exportValue: (v) => new Date(v.fecha_venta).toLocaleString('es-BO')
+      },
+      { key: 'usuario_nombre', label: 'Vendedor' },
+      { key: 'almacen_nombre', label: 'Almacén' },
+      { key: 'metodo_pago', label: 'Método de Pago' },
+      { 
+        key: 'subtotal', 
+        label: 'Subtotal (Bs.)',
+        exportValue: (v) => Number(v.subtotal)
+      },
+      { 
+        key: 'iva', 
+        label: 'IVA (Bs.)',
+        exportValue: (v) => Number(v.iva)
+      },
+      { 
+        key: 'total', 
+        label: 'Total (Bs.)',
+        exportValue: (v) => Number(v.total)
+      },
+      { key: 'estado', label: 'Estado' },
+    ];
+    
+    exportarAExcel(ventas, columnasExcel, 'Reporte_Ventas');
+  };
 
   return (
     <div className="gestion-ventas">
@@ -119,13 +152,17 @@ export default function GestionVentas() {
           <h1>Gestión de Ventas</h1>
           <p className="subtitulo">Historial de ventas realizadas.</p>
         </div>
-        <button onClick={() => navigate('/pos')} className="btn-primario">
-          + Nueva Venta
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={handleExportar} className="btn-excel">
+            📊 Exportar a Excel
+          </button>
+          <button onClick={() => navigate('/pos')} className="btn-primario">
+            + Nueva Venta
+          </button>
+        </div>
       </div>
-
       {mensaje.texto && <div className={`alerta ${mensaje.tipo}`}>{mensaje.texto}</div>}
-
+      
       <div className="filtros-ventas">
         <select
           value={filtros.estado}

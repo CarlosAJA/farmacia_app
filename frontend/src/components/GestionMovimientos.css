@@ -1,0 +1,40 @@
+.gestion-movimientos {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.gestion-movimientos h1 {
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.subtitulo {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.filtros-movimientos {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filtros-movimientos select {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.badge-mov {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.badge-entrada { background: #d4efdf; color: #196f3d; }
+.badge-salida { background: #fadbd8; color: #922b21; }
+.badge-ajuste { background: #fdebd0; color: #b9770e; }

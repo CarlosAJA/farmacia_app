@@ -11,5 +11,6 @@ router.get('/movimientos', controller.listarMovimientos);
 
 // Ajustar cantidad: solo admin y almacenero
 router.put('/:id/ajustar', permitirRoles('admin', 'almacenero'), controller.ajustar);
+router.post('/transferir', permitirRoles('admin', 'almacenero'), controller.transferir);
 
 module.exports = router;

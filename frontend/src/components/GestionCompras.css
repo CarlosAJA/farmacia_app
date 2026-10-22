@@ -211,3 +211,17 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
+.btn-excel {
+  padding: 10px 20px;
+  background: #27ae60; /* Verde Excel */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+.btn-excel:hover {
+  background: #219150;
+}

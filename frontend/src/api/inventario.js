@@ -13,4 +13,8 @@ export const inventarioApi = {
     const { data } = await api.put(`/inventario/${id}/ajustar`, { cantidad, motivo });
     return data;
   },
+  transferir: async (data) => {
+    const response = await api.post('/inventario/transferir', data);
+    return response.data;
+  },
 };

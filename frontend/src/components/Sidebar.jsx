@@ -53,6 +53,9 @@ const Sidebar = () => {
                     <NavLink to="/inventario" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                         📦 Inventario
                     </NavLink>
+                    <NavLink to="/movimientos" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        📋 Kardex / Movimientos
+                    </NavLink>
                     <NavLink to="/compras" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                         📥 Gestión de Compras
                     </NavLink>

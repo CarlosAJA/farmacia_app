@@ -43,4 +43,28 @@ const ajustar = async (req, res) => {
   }
 };
 
-module.exports = { listar, listarMovimientos, ajustar };
+const transferir = async (req, res) => {
+  try {
+    const { id_producto, id_almacen_origen, id_almacen_destino, cantidad, motivo } = req.body;
+    const id_usuario = req.usuario?.id || null;
+
+    if (!id_producto || !id_almacen_origen || !id_almacen_destino || !cantidad) {
+      return res.status(400).json({ ok: false, error: 'Faltan datos obligatorios.' });
+    }
+
+    const data = await service.transferirStock(
+      id_producto, 
+      Number(id_almacen_origen), 
+      Number(id_almacen_destino), 
+      Number(cantidad), 
+      motivo, 
+      id_usuario
+    );
+    res.json({ ok: true, data, mensaje: 'Traspaso realizado correctamente.' });
+  } catch (err) {
+    console.error('Error en traspaso:', err.message);
+    res.status(err.status || 500).json({ ok: false, error: err.message });
+  }
+};
+
+module.exports = { listar, listarMovimientos, ajustar, transferir };

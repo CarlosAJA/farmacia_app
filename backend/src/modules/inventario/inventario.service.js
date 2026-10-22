@@ -194,9 +194,78 @@ const ajustarCantidad = async (id_inventario, nuevaCantidad, motivo, id_usuario)
     connection.release();
   }
 };
+/**
+ * Transferir stock de un almacén a otro.
+ * Registra una salida en origen y una entrada en destino.
+ */
+const transferirStock = async (id_producto, id_almacen_origen, id_almacen_destino, cantidad, motivo, id_usuario) => {
+  if (id_almacen_origen === id_almacen_destino) {
+    const err = new Error('El almacén de origen y destino no pueden ser el mismo');
+    err.status = 400;
+    throw err;
+  }
 
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. Validar stock en origen
+    const [origenRows] = await connection.query(
+      'SELECT cantidad FROM inventario WHERE id_producto = ? AND id_almacen = ?',
+      [id_producto, id_almacen_origen]
+    );
+
+    const stockActual = origenRows.length > 0 ? origenRows[0].cantidad : 0;
+
+    if (stockActual < cantidad) {
+      const [prod] = await connection.query('SELECT nombre FROM productos WHERE id_producto = ?', [id_producto]);
+      const err = new Error(`Stock insuficiente en el almacén de origen para "${prod[0].nombre}". Disponible: ${stockActual}`);
+      err.status = 400;
+      throw err;
+    }
+
+    // 2. Restar del origen
+    await connection.query(
+      'UPDATE inventario SET cantidad = cantidad - ? WHERE id_producto = ? AND id_almacen = ?',
+      [cantidad, id_producto, id_almacen_origen]
+    );
+
+    // 3. Sumar al destino (o crearlo si no existe)
+    await connection.query(
+      `INSERT INTO inventario (id_producto, id_almacen, cantidad) 
+       VALUES (?, ?, ?) 
+       ON DUPLICATE KEY UPDATE cantidad = cantidad + VALUES(cantidad)`,
+      [id_producto, id_almacen_destino, cantidad]
+    );
+
+    // 4. Registrar Salida (Origen)
+    await connection.query(
+      `INSERT INTO movimientos_inventario 
+        (id_producto, id_almacen, tipo_movimiento, cantidad, motivo, id_usuario)
+       VALUES (?, ?, 'salida', ?, ?, ?)`,
+      [id_producto, id_almacen_origen, cantidad, `Traspaso a Almacén #${id_almacen_destino}. Motivo: ${motivo || 'N/A'}`, id_usuario]
+    );
+
+    // 5. Registrar Entrada (Destino)
+    await connection.query(
+      `INSERT INTO movimientos_inventario 
+        (id_producto, id_almacen, tipo_movimiento, cantidad, motivo, id_usuario)
+       VALUES (?, ?, 'entrada', ?, ?, ?)`,
+      [id_producto, id_almacen_destino, cantidad, `Traspaso desde Almacén #${id_almacen_origen}. Motivo: ${motivo || 'N/A'}`, id_usuario]
+    );
+
+    await connection.commit();
+    return { mensaje: 'Traspaso realizado con éxito' };
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
 module.exports = {
   listarInventario,
   listarMovimientos,
   ajustarCantidad,
+  transferirStock,
 };
