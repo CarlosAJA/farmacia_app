@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { catalogosApi } from '../api/compras';
 import { ventasApi } from '../api/ventas';
 import FacturaModal from './FacturaModal';
+import { inventarioApi } from '../api/inventario';
 import './PuntoVenta.css';
 
 export default function PuntoVenta() {
@@ -17,12 +18,23 @@ export default function PuntoVenta() {
   const [carrito, setCarrito] = useState([]);
   const [metodoPago, setMetodoPago] = useState('efectivo');
   const [descuento, setDescuento] = useState(0);
-  const [observaciones, setObservaciones] = useState('');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(null);
   const [exito, setExito] = useState(null);
   const [ventaFactura, setVentaFactura] = useState(null);
   const [mostrarFactura, setMostrarFactura] = useState(false);
+  const [stockPorProducto, setStockPorProducto] = useState({});
+  const [montoRecibido, setMontoRecibido] = useState(0);
+  const [montoEfectivo, setMontoEfectivo] = useState(0);
+  const [montoTarjeta, setMontoTarjeta] = useState(0);
+  const [montoQr, setMontoQr] = useState(0);
+  const [indiceSeleccionado, setIndiceSeleccionado] = useState(0);
+  
+  // Estados del Cliente
+  const [nitCi, setNitCi] = useState('');
+  const [razonSocial, setRazonSocial] = useState('');
+  const [celular, setCelular] = useState('');
+  const [email, setEmail] = useState('');
 
   useEffect(() => {
     const cargar = async () => {
@@ -41,6 +53,24 @@ export default function PuntoVenta() {
     cargar();
   }, []);
 
+  // Cargar el stock del almacén seleccionado
+  useEffect(() => {
+    const cargarStock = async () => {
+      if (!idAlmacen) return;
+      try {
+        const data = await inventarioApi.listar({ id_almacen: idAlmacen });
+        const mapaStock = {};
+        data.forEach((item) => {
+          mapaStock[item.id_producto] = item.cantidad;
+        });
+        setStockPorProducto(mapaStock);
+      } catch (error) {
+        console.error('Error al cargar el stock:', error);
+      }
+    };
+    cargarStock();
+  }, [idAlmacen]);
+
   useEffect(() => {
     if (!busqueda.trim()) {
       setProductosFiltrados([]);
@@ -48,12 +78,16 @@ export default function PuntoVenta() {
     }
     const q = busqueda.toLowerCase();
     const filtrados = productos
-      .filter(
-        (p) =>
-          p.codigo.toLowerCase().includes(q) ||
-          p.nombre.toLowerCase().includes(q)
-      )
-      .slice(0, 8);
+      .filter((p) => {
+        const coincideCodigo = p.codigo.toLowerCase().includes(q);
+        const coincideNombre = p.nombre.toLowerCase().includes(q);
+        const coincideLab = p.laboratorio_nombre 
+          ? p.laboratorio_nombre.toLowerCase().includes(q) 
+          : false;
+        return coincideCodigo || coincideNombre || coincideLab;
+      })
+      .slice(0, 10);
+      
     setProductosFiltrados(filtrados);
   }, [busqueda, productos]);
 
@@ -61,8 +95,18 @@ export default function PuntoVenta() {
     (sum, item) => sum + Number(item.cantidad) * Number(item.precio_unitario),
     0
   );
-  const iva = subtotal * 0.13;
-  const total = subtotal + iva - Number(descuento);
+  const iva = 0;
+  const porcentajeDescuento = Number(descuento) || 0;
+  const montoDescuento = subtotal * (porcentajeDescuento / 100);
+  const total = subtotal - montoDescuento;
+
+  let montoCambio = 0;
+  if (metodoPago === 'efectivo') {
+    montoCambio = Number(montoRecibido) > total ? Number(montoRecibido) - total : 0;
+  } else if (metodoPago === 'mixto') {
+    const sumaMixto = Number(montoEfectivo) + Number(montoTarjeta) + Number(montoQr);
+    montoCambio = sumaMixto > total ? sumaMixto - total : 0;
+  }
 
   const agregarAlCarrito = (producto) => {
     const existente = carrito.find((c) => c.id_producto === producto.id_producto);
@@ -89,7 +133,36 @@ export default function PuntoVenta() {
     }
     setBusqueda('');
     setProductosFiltrados([]);
+    setIndiceSeleccionado(0);
     setTimeout(() => inputBusqueda.current?.focus(), 100);
+  };
+
+  const handleKeyDown = (e) => {
+    if (productosFiltrados.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setIndiceSeleccionado((prev) => 
+        prev < productosFiltrados.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setIndiceSeleccionado((prev) => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const producto = productosFiltrados[indiceSeleccionado];
+      if (producto) {
+        const stock = stockPorProducto[producto.id_producto] || 0;
+        if (stock === 0) {
+          alert('No hay stock de este producto en este almacén.');
+        } else {
+          agregarAlCarrito(producto);
+        }
+      }
+    } else if (e.key === 'Escape') {
+      setBusqueda('');
+      setProductosFiltrados([]);
+    }
   };
 
   const cambiarCantidad = (id_producto, nuevaCantidad) => {
@@ -124,11 +197,36 @@ export default function PuntoVenta() {
     if (!window.confirm('¿Vaciar el carrito?')) return;
     setCarrito([]);
     setDescuento(0);
-    setObservaciones('');
+    // setObservaciones(''); // ELIMINADO
     setError(null);
     setExito(null);
     setVentaFactura(null);
   };
+  const buscarCliente = async () => {
+    if (!nitCi.trim()) return;
+    
+    try {
+      const res = await fetch(`http://localhost:5000/api/clientes/${nitCi}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      const data = await res.json();
+      
+      if (data.ok && data.data) {
+        // Si existe, llenamos los campos
+        setRazonSocial(data.data.razon_social);
+        setCelular(data.data.celular || '');
+        setEmail(data.data.email || '');
+      } else {
+        // Si no existe, limpiamos los campos para que ingrese uno nuevo
+        setRazonSocial('');
+        setCelular('');
+        setEmail('');
+      }
+    } catch (error) {
+      console.error('Error al buscar cliente', error);
+    }
+  };
+
 
   const handleCobrar = async () => {
     setError(null);
@@ -137,26 +235,45 @@ export default function PuntoVenta() {
 
     if (!idAlmacen) return setError('Selecciona un almacén');
     if (carrito.length === 0) return setError('El carrito está vacío');
+    if (!nitCi || !razonSocial) {
+      return setError('El NIT/CI y la Razón Social son obligatorios para facturar.');
+    }
 
     setCargando(true);
     try {
       const payload = {
         id_almacen: Number(idAlmacen),
         metodo_pago: metodoPago,
-        descuento: Number(descuento),
-        observaciones,
+        descuento: montoDescuento,
         detalles: carrito.map((c) => ({
           id_producto: Number(c.id_producto),
           cantidad: Number(c.cantidad),
           precio_unitario: Number(c.precio_unitario),
         })),
+        monto_recibido: Number(montoRecibido),
+        monto_cambio: montoCambio,
+        monto_efectivo: metodoPago === 'mixto' ? Number(montoEfectivo) : (metodoPago === 'efectivo' ? total : 0),
+        monto_tarjeta: metodoPago === 'mixto' ? Number(montoTarjeta) : (metodoPago === 'tarjeta' ? total : 0),
+        monto_qr: metodoPago === 'mixto' ? Number(montoQr) : (metodoPago === 'qr' ? total : 0),
+        cliente_nit: nitCi,
+        cliente_razon_social: razonSocial,
+        cliente_celular: celular,
+        cliente_email: email
       };
 
       const res = await ventasApi.crear(payload);
       
       setCarrito([]);
       setDescuento(0);
-      setObservaciones('');
+      setMontoRecibido(0);
+      setMontoEfectivo(0);
+      setMontoTarjeta(0);
+      setMontoQr(0);
+      setNitCi('');
+      setRazonSocial('');
+      setCelular('');
+      setEmail('');
+
       setExito(`✅ Venta ${res.data.numero_factura} cobrada exitosamente.`);
 
       try {
@@ -172,7 +289,7 @@ export default function PuntoVenta() {
       setCargando(false);
     }
   };
-
+  
   return (
     <div className="punto-venta">
       <h1>Punto de Venta</h1>
@@ -195,30 +312,52 @@ export default function PuntoVenta() {
           </div>
 
           <div className="card busqueda-card">
-            <label>Buscar producto (código o nombre)</label>
+            <label>Buscar producto por(código, nombre o laboratorio)</label>
             <input
               ref={inputBusqueda}
               type="text"
               placeholder="Escribe para buscar..."
               value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+              onChange={(e) => {
+                setBusqueda(e.target.value);
+                setIndiceSeleccionado(0);
+              }}
+              onKeyDown={handleKeyDown}
               autoFocus
             />
 
-            {productosFiltrados.length > 0 && (
-              <div className="resultados-busqueda">
-                {productosFiltrados.map((p) => (
-                  <div key={p.id_producto} className="resultado-item" onClick={() => agregarAlCarrito(p)}>
-                    <div className="resultado-info">
+            {productosFiltrados.map((p, index) => {
+              const stock = stockPorProducto[p.id_producto] || 0;
+              const isSelected = index === indiceSeleccionado;
+              return (
+                <div 
+                  key={p.id_producto} 
+                  className={`resultado-item ${stock === 0 ? 'sin-stock' : ''} ${isSelected ? 'activo' : ''}`} 
+                  onClick={() => {
+                    if (stock === 0) return alert('No hay stock de este producto en este almacén.');
+                    agregarAlCarrito(p);
+                  }}
+                  ref={isSelected ? (el) => el?.scrollIntoView({ block: 'nearest' }) : null}>
+                  <div className="resultado-info">
+                    <div>
                       <strong>{p.codigo}</strong> — {p.nombre}
-                      <div className="resultado-presentacion">{p.presentacion}</div>
                     </div>
-                    <div className="resultado-precio">Bs. {Number(p.precio_venta).toFixed(2)}</div>
+                    <div className="resultado-presentacion">
+                      {p.presentacion} | 🏭 {p.laboratorio_nombre || 'S/L'}
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  <div className="resultado-precio-stock">
+                    <span className={`badge-stock-pos ${stock > 0 ? 'ok' : 'cero'}`}>
+                      Stock: {stock}
+                    </span>
+                    <span className="resultado-precio">
+                      Bs. {Number(p.precio_venta).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div> {/* 👈 ESTE ERA EL CIERRE QUE FALTABA */}
 
           <div className="card">
             <h2>Carrito</h2>
@@ -257,7 +396,7 @@ export default function PuntoVenta() {
                           min="0"
                           step="0.01"
                           value={c.precio_unitario}
-                          onChange={(e) => cambiarPrecio(c.id_producto, e.target.value)}
+                          readOnly
                           className="input-precio"
                         />
                       </td>
@@ -284,14 +423,14 @@ export default function PuntoVenta() {
               <span>Total parcial:</span>
               <span>Bs. {subtotal.toFixed(2)}</span>
             </div>
-            <div className="linea-total">
-              <span>IVA (13%):</span>
-              <span>Bs. {iva.toFixed(2)}</span>
-            </div>
+            
             <div className="linea-total">
               <span>Descuento:</span>
               <input
-                type="number" min="0" step="0.01"
+                type="number" 
+                min="0" 
+                max="100"
+                step="1"
                 value={descuento}
                 onChange={(e) => setDescuento(e.target.value)}
                 className="input-descuento"
@@ -306,23 +445,91 @@ export default function PuntoVenta() {
             <select value={metodoPago} onChange={(e) => setMetodoPago(e.target.value)}>
               <option value="efectivo">💵 Efectivo</option>
               <option value="tarjeta">💳 Tarjeta</option>
-              <option value="transferencia">🏦 Transferencia</option>
-              <option value="seguro">🏥 Seguro</option>
+              <option value="qr">📱 QR</option>
+              <option value="mixto">🔀 Mixto</option>
             </select>
 
-            <label className="label-pago">Observaciones</label>
-            <textarea
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
-              placeholder="Opcional..."
-              rows={2}
-            />
+            {metodoPago === 'efectivo' && (
+              <div className="pago-efectivo-box">
+                <label>Efectivo Recibido:</label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  value={montoRecibido} 
+                  onChange={(e) => setMontoRecibido(e.target.value)} 
+                  className="input-pago"
+                />
+                <div className="cambio-texto">
+                  Cambio: <strong>Bs. {montoCambio.toFixed(2)}</strong>
+                </div>
+              </div>
+            )}
+
+            {metodoPago === 'mixto' && (
+              <div className="pago-mixto-box">
+                <div className="input-group">
+                  <label>Efectivo (Bs.):</label>
+                  <input type="number" min="0" value={montoEfectivo} onChange={(e) => setMontoEfectivo(e.target.value)} className="input-pago" />
+                </div>
+                <div className="input-group">
+                  <label>Tarjeta (Bs.):</label>
+                  <input type="number" min="0" value={montoTarjeta} onChange={(e) => setMontoTarjeta(e.target.value)} className="input-pago" />
+                </div>
+                <div className="input-group">
+                  <label>QR (Bs.):</label>
+                  <input type="number" min="0" value={montoQr} onChange={(e) => setMontoQr(e.target.value)} className="input-pago" />
+                </div>
+                <div className="cambio-texto" style={{ marginTop: '10px' }}>
+                  Total Ingresado: Bs. {(Number(montoEfectivo) + Number(montoTarjeta) + Number(montoQr)).toFixed(2)}
+                  {montoCambio > 0 && <><br/>Cambio: <strong>Bs. {montoCambio.toFixed(2)}</strong></>}
+                </div>
+              </div>
+            )}
+            
+            <div className="datos-cliente-box">
+              <h3>Datos del Cliente</h3>
+              <div className="input-group">
+                <label>NIT/CI *</label>
+                <input 
+                  type="text" 
+                  value={nitCi} 
+                  onChange={(e) => setNitCi(e.target.value)} 
+                  onBlur={buscarCliente} // 👈 Busca cuando se sale del campo
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      buscarCliente(); // 👈 Busca si presiona Enter
+                    }
+                  }}
+                  placeholder="Ej. 12345678" 
+                  required 
+                />
+                <small style={{color: '#7f8c8d', fontSize: '11px'}}>Presione Enter para buscar cliente</small>
+              </div>
+              <div className="input-group">
+                <label>Razón Social / Nombre *</label>
+                <input type="text" value={razonSocial} onChange={(e) => setRazonSocial(e.target.value)} placeholder="Ej. Juan Pérez" required />
+              </div>
+              <div className="input-group">
+                <label>Celular (Opcional)</label>
+                <input type="text" value={celular} onChange={(e) => setCelular(e.target.value)} />
+              </div>
+              <div className="input-group">
+                <label>Correo (Opcional)</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+            </div>
 
             <button
-              onClick={handleCobrar}
-              disabled={cargando || carrito.length === 0}
-              className="btn-cobrar"
-            >
+                onClick={handleCobrar}
+                disabled={
+                  cargando || 
+                  carrito.length === 0 || 
+                  (metodoPago === 'efectivo' && Number(montoRecibido) < total) ||
+                  (metodoPago === 'mixto' && (Number(montoEfectivo) + Number(montoTarjeta) + Number(montoQr)) < total)
+                }
+                className="btn-cobrar"
+              >
               {cargando ? 'Procesando...' : `💵 COBRAR Bs. ${total.toFixed(2)}`}
             </button>
 

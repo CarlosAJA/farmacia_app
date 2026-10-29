@@ -77,8 +77,8 @@ export default function GestionVentas() {
     const iconos = {
       efectivo: '💵',
       tarjeta: '💳',
-      transferencia: '🏦',
-      seguro: '🏥',
+      qr: '📱',
+      mixto: '🔀',
     };
     return `${iconos[metodo] || ''} ${metodo}`;
   };

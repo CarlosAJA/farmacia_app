@@ -316,3 +316,130 @@
 .btn-imprimir-factura-panel:hover {
   background: #d35400;
 }
+
+.resultado-info {
+  flex: 1;
+}
+
+.resultado-precio-stock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.badge-stock-pos {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.badge-stock-pos.ok {
+  background: #d4efdf;
+  color: #196f3d;
+}
+
+.badge-stock-pos.cero {
+  background: #fadbd8;
+  color: #922b21;
+}
+
+.resultado-item.sin-stock {
+  opacity: 0.6;
+  background: #f9f9f9;
+}
+
+.resultado-item.sin-stock:hover {
+  background: #f9f9f9;
+  cursor: not-allowed;
+}
+
+.pago-efectivo-box, .pago-mixto-box {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.pago-efectivo-box label, .pago-mixto-box label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.input-pago {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.cambio-texto {
+  background: #d4efdf;
+  color: #196f3d;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.pago-mixto-box .input-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.pago-mixto-box .input-group label { margin-bottom: 0; }
+.pago-mixto-box .input-group input { width: 60%; margin-bottom: 0; }
+
+.datos-cliente-box {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 15px;
+}
+
+.datos-cliente-box h3 {
+  font-size: 14px;
+  color: #34495e;
+  margin-top: 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+}
+
+.datos-cliente-box .input-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.datos-cliente-box label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 0;
+}
+
+.datos-cliente-box input {
+  width: 60%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.resultado-item.activo {
+  background-color: #eaf4fc;
+  border-left: 4px solid #3498db;
+  transform: translateX(2px);
+  transition: all 0.1s ease;
+}

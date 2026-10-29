@@ -1,0 +1,264 @@
+/* ========================================= */
+/* ESTILOS NORMALES DE LA PANTALLA           */
+/* ========================================= */
+.gestion-clientes {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-clientes h1 {
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.subtitulo {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.filtros-clientes {
+  margin-bottom: 20px;
+}
+
+.filtros-clientes input {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 300px;
+  font-size: 14px;
+}
+
+/* Modal Historial */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-contenido {
+  background: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.modal-header-historial {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+.modal-header-historial h3 { margin: 0 0 10px; color: #2c3e50; }
+.modal-header-historial p { margin: 3px 0; font-size: 14px; color: #34495e; }
+
+.btn-cerrar-modal {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #e74c3c;
+  cursor: pointer;
+}
+
+.lista-historial {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.card-venta-historial {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.venta-header {
+  display: flex;
+  justify-content: space-between;
+  background: #ecf0f1;
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.tabla-detalle-historial {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-detalle-historial th, 
+.tabla-detalle-historial td {
+  padding: 8px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.tabla-detalle-historial th {
+  background: #fff;
+  color: #7f8c8d;
+  font-weight: normal;
+}
+
+.sin-datos, .cargando {
+  text-align: center;
+  padding: 30px;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Estilos de los botones de acción */
+.botones-acciones {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-excel-historial,
+.btn-pdf-historial {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+
+.btn-excel-historial { background: #27ae60; }
+.btn-pdf-historial { background: #e67e22; }
+
+/* ========================================= */
+/* MAGIA: REGLAS PARA IMPRIMIR A PDF         */
+/* ========================================= */
+@media print {
+  /* 1. Forzamos colores exactos */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 2. Anulamos el Flexbox del Layout Principal */
+  .app-layout {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 3. Ocultamos la barra lateral, encabezados y botones */
+  .sidebar, 
+  aside, 
+  header, 
+  .no-print {
+    display: none !important;
+  }
+
+  /* 4. El contenido principal ocupa todo el ancho */
+  .app-main-content {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* 5. Hacemos visible solo el modal */
+  body * {
+    visibility: hidden;
+  }
+  
+  .modal-overlay, 
+  .modal-overlay * {
+    visibility: visible;
+  }
+
+  /* 6. El modal se "pega" arriba de todo y deja de ser una ventana flotante */
+  .modal-overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .modal-contenido {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  /* 7. Restauramos el diseño bonito de las facturas */
+  .modal-header-historial {
+    background: transparent !important;
+    border-bottom: 2px solid #2c3e50 !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .modal-header-historial h3 {
+    font-size: 20px !important;
+  }
+
+  .card-venta-historial {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    border: 1px solid #ccc !important;
+    margin-bottom: 20px !important;
+    border-radius: 6px !important;
+  }
+
+  .venta-header {
+    background: #ecf0f1 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    padding: 10px 15px !important;
+    border-bottom: 1px solid #ccc !important;
+    border-radius: 6px 6px 0 0 !important;
+    font-size: 13px !important;
+  }
+
+  .tabla-detalle-historial {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .tabla-detalle-historial th, 
+  .tabla-detalle-historial td {
+    padding: 8px 15px !important;
+    border-bottom: 1px solid #eee !important;
+    font-size: 13px !important;
+  }
+
+  .tabla-detalle-historial th {
+    background: #fff !important;
+    color: #7f8c8d !important;
+    font-weight: bold !important;
+  }
+}

@@ -62,8 +62,8 @@ const Sidebar = () => {
                     <NavLink to="/usuarios" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                         👥 Gestión de Usuarios
                     </NavLink>
-                    <NavLink to="/reportes" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
-                        📈 Reportes y Gráficos
+                    <NavLink to="/clientes" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
+                        📈 Directorio de Clientes
                     </NavLink>
                 </nav>
             )}
