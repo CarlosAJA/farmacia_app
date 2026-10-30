@@ -4,11 +4,17 @@ import { catalogosApi } from '../api/compras';
 import { ventasApi } from '../api/ventas';
 import FacturaModal from './FacturaModal';
 import { inventarioApi } from '../api/inventario';
+import { AuthContext } from '../AuthContext';
+import { useContext } from 'react'; // Asegúrate de tenerlo
 import './PuntoVenta.css';
 
 export default function PuntoVenta() {
   const navigate = useNavigate();
   const inputBusqueda = useRef(null);
+
+  // Dentro del componente:
+  const { user } = useContext(AuthContext);
+  const isAdmin = user?.rol === 'admin';
 
   const [almacenes, setAlmacenes] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -36,22 +42,32 @@ export default function PuntoVenta() {
   const [celular, setCelular] = useState('');
   const [email, setEmail] = useState('');
 
-  useEffect(() => {
+      useEffect(() => {
     const cargar = async () => {
       try {
         const [al, pr] = await Promise.all([
           catalogosApi.almacenes(),
           catalogosApi.productos(),
         ]);
-        setAlmacenes(al);
+        
+        // Si NO es admin y tiene sucursal, filtramos sus almacenes
+        let almacenesPermitidos = al;
+        if (!isAdmin && user?.sucursal_id) {
+          almacenesPermitidos = al.filter(a => a.id_sucursal === user.sucursal_id);
+        }
+
+        setAlmacenes(almacenesPermitidos);
         setProductos(pr);
-        if (al.length > 0) setIdAlmacen(String(al[0].id_almacen));
+        
+        if (almacenesPermitidos.length > 0) {
+          setIdAlmacen(String(almacenesPermitidos[0].id_almacen));
+        }
       } catch (err) {
         setError('Error al cargar catálogos');
       }
     };
     cargar();
-  }, []);
+  }, [user, isAdmin]);
 
   // Cargar el stock del almacén seleccionado
   useEffect(() => {
@@ -300,16 +316,24 @@ export default function PuntoVenta() {
 
       <div className="pos-layout">
         <div className="pos-izquierda">
-          <div className="card">
-            <label>Almacén de venta</label>
-            <select value={idAlmacen} onChange={(e) => setIdAlmacen(e.target.value)}>
-              {almacenes.map((a) => (
-                <option key={a.id_almacen} value={a.id_almacen}>
-                  {a.nombre} {a.sucursal_nombre ? `— ${a.sucursal_nombre}` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="card">
+              <label>Almacén de venta</label>
+              {/* SI ES ADMIN: Mostrar el selector */}
+              {isAdmin ? (
+                <select value={idAlmacen} onChange={(e) => setIdAlmacen(e.target.value)}>
+                  {almacenes.map((a) => (
+                    <option key={a.id_almacen} value={a.id_almacen}>
+                      {a.nombre} {a.sucursal_nombre ? `— ${a.sucursal_nombre}` : ''}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                /* SI NO ES ADMIN: Mostrar el texto fijo */
+                <div style={{ padding: '10px', background: '#eaf4fc', borderRadius: '4px', fontWeight: 'bold', color: '#2c3e50' }}>
+                  🏢 {almacenes.length > 0 ? almacenes[0].nombre : 'Sin almacén asignado'}
+                </div>
+              )}
+            </div>
 
           <div className="card busqueda-card">
             <label>Buscar producto por(código, nombre o laboratorio)</label>

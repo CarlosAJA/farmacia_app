@@ -41,9 +41,9 @@ const Login = () => {
 
                 <form onSubmit={handleSubmit} className="login-form">
                     <div className="form-group">
-                        <label htmlFor="email">Correo Electrónico</label>
+                        <label htmlFor="email">Usuario o Correo Electrónico</label>
                         <input
-                            type="email"
+                            type="text"
                             id="email"
                             placeholder="ejemplo@farmacia.com"
                             value={email}
