@@ -180,21 +180,46 @@ const crearCompra = async (data, id_usuario) => {
   }
 };
 
-const recibirCompra = async (id) => {
-  const [rows] = await pool.query('SELECT estado FROM compras WHERE id_compra = ?', [id]);
-  if (rows.length === 0) {
-    const err = new Error('Compra no encontrada');
-    err.status = 404;
-    throw err;
-  }
-  if (rows[0].estado !== 'pendiente') {
-    const err = new Error(`No se puede recibir una compra en estado "${rows[0].estado}"`);
-    err.status = 400;
-    throw err;
-  }
+const recibirCompra = async (id, id_usuario) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
 
-  await pool.query("UPDATE compras SET estado = 'recibida' WHERE id_compra = ?", [id]);
-  return { id_compra: id, mensaje: 'Compra recibida. Inventario actualizado.' };
+    // 1. Verificar la compra
+    const [rows] = await connection.query('SELECT * FROM compras WHERE id_compra = ?', [id]);
+    if (rows.length === 0) throw new Error('Compra no encontrada');
+    if (rows[0].estado !== 'pendiente') throw new Error('La compra ya fue procesada o cancelada');
+
+    // 2. Obtener los detalles de la compra
+    const [detalles] = await connection.query('SELECT * FROM detalle_compra WHERE id_compra = ?', [id]);
+
+    // 3. Actualizar el inventario y registrar movimientos (Lógica del Trigger)
+    for (const detalle of detalles) {
+      await connection.query(
+        `INSERT INTO inventario (id_producto, id_almacen, cantidad) 
+         VALUES (?, ?, ?) 
+         ON DUPLICATE KEY UPDATE cantidad = cantidad + VALUES(cantidad)`,
+        [detalle.id_producto, rows[0].id_almacen, detalle.cantidad]
+      );
+
+      await connection.query(
+        `INSERT INTO movimientos_inventario (id_producto, id_almacen, tipo_movimiento, cantidad, motivo, id_usuario)
+         VALUES (?, ?, 'entrada', ?, ?, ?)`,
+        [detalle.id_producto, rows[0].id_almacen, detalle.cantidad, `Compra recibida #${id}`, id_usuario]
+      );
+    }
+
+    // 4. Cambiar el estado de la compra
+    await connection.query("UPDATE compras SET estado = 'recibida' WHERE id_compra = ?", [id]);
+
+    await connection.commit();
+    return { id_compra: id, mensaje: 'Compra recibida. Inventario actualizado.' };
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
 };
 
 const cancelarCompra = async (id) => {

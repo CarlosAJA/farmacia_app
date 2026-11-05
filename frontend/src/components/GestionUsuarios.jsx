@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import Tabla from './Tabla';
 import './GestionUsuarios.css';
 
@@ -35,7 +35,7 @@ const GestionUsuarios = () => {
     const obtenerUsuarios = async () => {
         try {
             setCargando(true);
-            const res = await axios.get('http://localhost:5000/api/usuarios', headersAuth());
+            const res = await api.get('/usuarios', headersAuth());
             setUsuarios(res.data.data || []);
         } catch (err) {
             mostrarMensaje('Error al cargar la lista de usuarios.', 'error');
@@ -46,7 +46,7 @@ const GestionUsuarios = () => {
 
     const obtenerSucursales = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/sucursales', headersAuth());
+            const res = await api.get('/sucursales', headersAuth());
             setSucursales(res.data.data || []);
         } catch (err) {
             console.error('Error al cargar sucursales:', err);
@@ -62,13 +62,11 @@ const GestionUsuarios = () => {
         e.preventDefault();
         setCargando(true);
         try {
-            const res = await axios.post(
-                'http://localhost:5000/api/usuarios/registro',
-                { 
-                    nombre_completo: nombre, 
-                    ci, 
-                    direccion, 
-                    telefono, 
+            const res = await api.post('/usuarios/registro', {
+                nombre_completo: nombre,
+                ci,
+                direccion,
+                telefono,
                     email_personal: emailPersonal, 
                     rol, 
                     sucursal_id: sucursalId || null 
@@ -92,8 +90,8 @@ const GestionUsuarios = () => {
     const handleBaja = async (id, nombreUsuario) => {
         if (!window.confirm(`¿Estás seguro de que deseas dar de baja a ${nombreUsuario}?`)) return;
         try {
-            const res = await axios.put(
-                `http://localhost:5000/api/usuarios/baja/${id}`,
+            const res = await api.put(
+                `/usuarios/baja/${id}`,
                 {},
                 headersAuth()
             );
@@ -121,7 +119,7 @@ const GestionUsuarios = () => {
     const guardarEdicion = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.put(`http://localhost:5000/api/usuarios/${editForm.id_usuario}`, editForm, headersAuth());
+            const res = await api.put(`/usuarios/${editForm.id_usuario}`, editForm, headersAuth());
             mostrarMensaje(res.data.mensaje, 'exito');
             setModalEditar(false);
             obtenerUsuarios();
@@ -133,7 +131,7 @@ const GestionUsuarios = () => {
     const resetPassword = async (id, nombre) => {
         if (!window.confirm(`¿Resetear la contraseña de ${nombre}? Se establecerá su nombre de usuario como contraseña.`)) return;
         try {
-            const res = await axios.put(`http://localhost:5000/api/usuarios/${id}/reset-password`, {}, headersAuth());
+            const res = await api.put(`/usuarios/${id}/reset-password`, {}, headersAuth());
             alert(`✅ ${res.data.mensaje}\n\nLa nueva contraseña es: ${res.data.nuevaPassword}`);
             mostrarMensaje('Contraseña reseteada con éxito.', 'exito');
         } catch (err) {

@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './api/axios'; // 👈 Usamos nuestra instancia personalizada
 
 export const AuthContext = createContext();
 
@@ -10,21 +10,16 @@ export const AuthProvider = ({ children }) => {
         return savedUser ? JSON.parse(savedUser) : null;
     });
 
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        } else {
-            delete axios.defaults.headers.common['Authorization'];
-        }
-    }, [token]);
+    // El interceptor en api/axios.js ya se encarga de poner el token en los headers.
+    // No necesitamos el useEffect de axios.defaults aquí.
 
     const login = async (email, password) => {
-        const res = await axios.post('http://localhost:5000/api/usuarios/login', {
+        // 👇 Usamos api.post y solo la ruta relativa
+        const res = await api.post('/usuarios/login', {
             email,
             password,
         });
 
-        // 👇 Nueva estructura: { ok, data: { token, usuario } }
         const respuesta = res.data;
         if (!respuesta.ok || !respuesta.data) {
             throw new Error(respuesta.error || 'El servidor no devolvió los datos correctos.');
