@@ -69,4 +69,42 @@ const cerrarCaja = async (id_sesion, monto_real) => {
   return { monto_sistema, monto_real, diferencia };
 };
 
-module.exports = { obtenerCajaActiva, abrirCaja, obtenerResumenCaja, cerrarCaja };
+const listarSesiones = async (filtros = {}) => {
+  const { fecha_desde, fecha_hasta } = filtros;
+  
+  let sql = `
+    SELECT 
+      c.id_sesion,
+      c.fecha_apertura,
+      c.monto_apertura,
+      c.fecha_cierre,
+      c.monto_sistema,
+      c.monto_real,
+      c.diferencia,
+      c.estado,
+      u.nombre AS usuario_nombre,
+      a.nombre AS almacen_nombre
+    FROM sesiones_caja c
+    INNER JOIN usuarios u ON c.id_usuario = u.id_usuario
+    INNER JOIN almacenes a ON c.id_almacen = a.id_almacen
+    WHERE 1=1
+  `;
+  const params = [];
+
+  if (fecha_desde) { 
+    sql += ' AND DATE(c.fecha_apertura) >= ?'; 
+    params.push(fecha_desde); 
+  }
+  if (fecha_hasta) { 
+    sql += ' AND DATE(c.fecha_apertura) <= ?'; 
+    params.push(fecha_hasta); 
+  }
+
+  sql += ' ORDER BY c.fecha_apertura DESC';
+  
+  const [rows] = await pool.query(sql, params);
+  return rows;
+};
+
+module.exports = { obtenerCajaActiva, abrirCaja, obtenerResumenCaja, cerrarCaja, listarSesiones }; // 👈 Agregamos listarSesiones al export
+

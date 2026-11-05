@@ -35,6 +35,9 @@ const Sidebar = () => {
                 <NavLink to="/ventas" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                     📋 Historial de Venta
                 </NavLink>
+                {user?.rol === 'admin' && (
+                    <NavLink to="/historial-cajas" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>📊 Historial de Cajas</NavLink>
+               )}
                 <NavLink to="/caja" className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}>
                     🕒 Apertura / Cierre
                 </NavLink>

@@ -81,7 +81,7 @@ export default function GestionClientes() {
 
   const columnas = [
     { key: 'nit_ci', label: 'NIT/CI' },
-    { key: 'razon_social', label: 'Razón Social' },
+    { key: 'razon_social', label: 'Razón Social', render: (c) => c.nit_ci === '0' ? 'Consumidor Final' : c.razon_social },
     { key: 'celular', label: 'Celular', render: (c) => c.celular || '—' },
     { key: 'email', label: 'Correo', render: (c) => c.email || '—' },
     {

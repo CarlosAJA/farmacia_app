@@ -17,4 +17,8 @@ export const cajasApi = {
     const { data } = await api.post(`/cajas/${id_sesion}/cerrar`, { monto_real });
     return data;
   },
+  listarHistorial: async (filtros = {}) => {
+    const { data } = await api.get('/cajas/historial', { params: filtros });
+    return data.data;
+  },
 };

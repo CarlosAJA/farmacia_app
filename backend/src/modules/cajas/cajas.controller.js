@@ -38,4 +38,13 @@ const cerrar = async (req, res) => {
   }
 };
 
-module.exports = { verificar, abrir, resumen, cerrar };
+const historial = async (req, res) => {
+  try {
+    const data = await service.listarSesiones(req.query);
+    res.json({ ok: true, data });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
+module.exports = { verificar, abrir, resumen, cerrar, historial }; // 👈 Agregar historial

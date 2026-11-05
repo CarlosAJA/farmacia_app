@@ -15,6 +15,7 @@ import RutaProtegida from './RutaProtegida';
 import GestionMovimientos from './components/GestionMovimientos';
 import GestionClientes from './components/GestionClientes';
 import GestionCaja from './components/GestionCaja';
+import HistorialCajas from './components/HistorialCajas';
 import './App.css';
 
 function LayoutConMenu() {
@@ -102,6 +103,12 @@ function App() {
                         <Route path="/movimientos" element={
                             <RutaProtegida rolesPermitidos={['admin', 'almacenero','farmaceutico']}>
                                 <GestionMovimientos />
+                            </RutaProtegida>
+                        } />
+
+                        <Route path="/historial-cajas" element={
+                            <RutaProtegida rolesPermitidos={['admin']}>
+                                <HistorialCajas />
                             </RutaProtegida>
                         } />
 
