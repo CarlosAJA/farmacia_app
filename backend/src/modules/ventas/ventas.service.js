@@ -7,7 +7,7 @@ const generarNumeroFactura = async () => {
 };
 
 const listarVentas = async (filtros = {}) => {
-  const { estado, id_almacen, busqueda, fecha_desde, fecha_hasta } = filtros;
+  const { estado, id_almacen, busqueda, fecha_desde, fecha_hasta, forzarHoy } = filtros;
 
   let sql = `
     SELECT
@@ -16,7 +16,9 @@ const listarVentas = async (filtros = {}) => {
       a.id_almacen, a.nombre AS almacen_nombre,
       s.nombre AS sucursal_nombre,
       u.id_usuario, u.nombre AS usuario_nombre,
-      c.razon_social AS cliente_nombre, c.nit_ci AS cliente_nit,
+      c.razon_social AS cliente_nombre, 
+      c.nit_ci AS cliente_nit,
+      c.celular AS cliente_celular,
       (SELECT COUNT(*) FROM detalle_venta dv WHERE dv.id_venta = v.id_venta) AS total_items
     FROM ventas v
     INNER JOIN almacenes a ON v.id_almacen = a.id_almacen
@@ -30,8 +32,14 @@ const listarVentas = async (filtros = {}) => {
   if (estado) { sql += ' AND v.estado = ?'; params.push(estado); }
   if (id_almacen) { sql += ' AND v.id_almacen = ?'; params.push(id_almacen); }
   if (busqueda) { sql += ' AND (v.numero_factura LIKE ? OR u.nombre LIKE ? OR c.razon_social LIKE ?)'; params.push(`%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`); }
-  if (fecha_desde) { sql += ' AND DATE(v.fecha_venta) >= ?'; params.push(fecha_desde); }
-  if (fecha_hasta) { sql += ' AND DATE(v.fecha_venta) <= ?'; params.push(fecha_hasta); }
+  
+  // 👇 LÓGICA DE FECHAS
+  if (forzarHoy) {
+    sql += ' AND DATE(v.fecha_venta) = CURDATE()'; // Solo hoy para el cajero
+  } else {
+    if (fecha_desde) { sql += ' AND DATE(v.fecha_venta) >= ?'; params.push(fecha_desde); }
+    if (fecha_hasta) { sql += ' AND DATE(v.fecha_venta) <= ?'; params.push(fecha_hasta); }
+  }
 
   sql += ' ORDER BY v.fecha_venta DESC, v.id_venta DESC';
   const [rows] = await pool.query(sql, params);
@@ -75,10 +83,11 @@ const obtenerVentaPorId = async (id) => {
 };
 
 const crearVenta = async (data, id_usuario) => {
-  const {
+   const {
     id_almacen, metodo_pago = 'efectivo', descuento = 0, detalles = [],
     monto_recibido = 0, monto_cambio = 0, monto_efectivo = 0, monto_tarjeta = 0, monto_qr = 0,
-    cliente_nit, cliente_razon_social, cliente_celular, cliente_email
+    cliente_nit, cliente_razon_social, cliente_celular, cliente_email,
+    id_sesion_caja // 👈 NUEVO
   } = data;
 
   if (!id_almacen) throw new Error('El almacén es obligatorio');
@@ -135,11 +144,12 @@ const crearVenta = async (data, id_usuario) => {
     // 4. INSERT Ventas
     const [result] = await connection.query(
       `INSERT INTO ventas
-        (numero_factura, id_usuario, id_almacen, subtotal, iva, descuento, total, metodo_pago, estado, id_cliente, monto_recibido, monto_cambio, monto_efectivo, monto_tarjeta, monto_qr)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?, ?, ?)`,
+        (numero_factura, id_usuario, id_almacen, subtotal, iva, descuento, total, metodo_pago, estado, id_cliente, monto_recibido, monto_cambio, monto_efectivo, monto_tarjeta, monto_qr, id_sesion_caja)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?, ?, ?, ?)`, // 👈 Un ? más
       [
         numero_factura, id_usuario, id_almacen, subtotal, iva, descuento, total, metodo_pago,
-        id_cliente, monto_recibido, monto_cambio, monto_efectivo, monto_tarjeta, monto_qr
+        id_cliente, monto_recibido, monto_cambio, monto_efectivo, monto_tarjeta, monto_qr,
+        id_sesion_caja // 👈 NUEVO VALOR
       ]
     );
 

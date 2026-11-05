@@ -23,7 +23,7 @@ app.use('/api/productos', require('./src/modules/productos'));
 app.use('/api/ventas', require('./src/modules/ventas'));
 app.use('/api/reportes', require('./src/modules/reportes'));
 app.use('/api/clientes', require('./src/modules/clientes'));
-
+app.use('/api/cajas', require('./src/modules/cajas')); // 👈 ESTA LÍNEA DEBE ESTAR
 // Ruta base de prueba
 app.get('/', (req, res) => {
     res.send('Servidor de la farmacia funcionando perfectamente');

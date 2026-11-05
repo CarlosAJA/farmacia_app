@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   BarChart, Bar
 } from 'recharts';
 import { reportesApi } from '../api/reportes';
+import { AuthContext } from '../AuthContext';
 import './Dashboard.css';
 
 export default function Dashboard() {
+  const { user } = useContext(AuthContext); // 👈 Obtenemos el usuario logueado
   const [data, setData] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +16,9 @@ export default function Dashboard() {
   useEffect(() => {
     const cargar = async () => {
       try {
-        const res = await reportesApi.getDashboard();
+        // Si es vendedor, filtramos por su sucursal. Si es admin, ve todo.
+        const params = user?.rol === 'vendedor' ? { id_sucursal: user.sucursal_id } : {};
+        const res = await reportesApi.getDashboard(params);
         setData(res);
       } catch (err) {
         setError('Error al cargar los reportes');
@@ -22,14 +26,19 @@ export default function Dashboard() {
         setCargando(false);
       }
     };
-    cargar();
-  }, []);
+    
+    if (user) {
+      cargar();
+    }
+  }, [user]);
 
   if (cargando) return <div className="dashboard-loading">Cargando dashboard...</div>;
   if (error) return <div className="alerta error">{error}</div>;
   if (!data) return null;
 
   const { kpis, ventasSemana, topProductos, alertasStock } = data;
+
+  const isVendedor = user?.rol === 'vendedor';
 
   // Formatear datos para el gráfico de ventas
   const chartData = ventasSemana.map((v) => ({
@@ -39,10 +48,15 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <h1>Panel de Control</h1>
-      <p className="subtitulo">Resumen general de la farmacia</p>
+      <h1>{isVendedor ? 'Panel de Sucursal' : 'Panel de Control'}</h1>
+      <p className="subtitulo">
+        {isVendedor 
+          ? `Resumen de ventas y stock de tu sucursal` 
+          : 'Resumen general de la farmacia'}
+      </p>
 
       {/* TARJETAS KPI */}
+            {/* TARJETAS KPI */}
       <div className="kpi-grid">
         <div className="kpi-card kpi-primary">
           <div className="kpi-icon">💰</div>
@@ -52,13 +66,16 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="kpi-card kpi-success">
-          <div className="kpi-icon">📈</div>
-          <div className="kpi-info">
-            <span className="kpi-label">Ventas del Mes</span>
-            <span className="kpi-value">Bs. {Number(kpis.ventas_mes).toFixed(2)}</span>
+        {/* 👇 ESTA TARJETA SOLO LA VE EL ADMINISTRADOR 👇 */}
+        {!isVendedor && (
+          <div className="kpi-card kpi-success">
+            <div className="kpi-icon">📈</div>
+            <div className="kpi-info">
+              <span className="kpi-label">Ventas del Mes</span>
+              <span className="kpi-value">Bs. {Number(kpis.ventas_mes).toFixed(2)}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="kpi-card kpi-info-card">
           <div className="kpi-icon">🧾</div>
@@ -85,52 +102,54 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* GRÁFICOS */}
-      <div className="graficos-grid">
-        {/* Gráfico de Ventas */}
-        <div className="card-grafico">
-          <h2>Ventas Últimos 7 Días</h2>
-          <div className="grafico-wrapper">
-            {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                  <XAxis dataKey="fecha" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <RechartsTooltip formatter={(value) => `Bs. ${value.toFixed(2)}`} />
-                  <Line type="monotone" dataKey="total" stroke="#3498db" strokeWidth={3} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="sin-datos">No hay ventas registradas en los últimos 7 días.</p>
-            )}
+      {/* 👇 GRÁFICOS: SOLO EL ADMINISTRADOR LOS VE 👇 */}
+      {!isVendedor && (
+        <div className="graficos-grid">
+          {/* Gráfico de Ventas */}
+          <div className="card-grafico">
+            <h2>Ventas Últimos 7 Días</h2>
+            <div className="grafico-wrapper">
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={chartData} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                    <XAxis dataKey="fecha" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <RechartsTooltip formatter={(value) => `Bs. ${value.toFixed(2)}`} />
+                    <Line type="monotone" dataKey="total" stroke="#3498db" strokeWidth={3} dot={{ r: 4 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="sin-datos">No hay ventas registradas en los últimos 7 días.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Top Productos */}
+          <div className="card-grafico">
+            <h2>Top 5 Productos Más Vendidos</h2>
+            <div className="grafico-wrapper">
+              {topProductos.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={topProductos} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="nombre" type="category" tick={{ fontSize: 11 }} width={100} />
+                    <RechartsTooltip formatter={(value) => `${value} unidades`} />
+                    <Bar dataKey="cantidad_vendida" fill="#27ae60" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="sin-datos">No hay productos vendidos aún.</p>
+              )}
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Top Productos */}
-        <div className="card-grafico">
-          <h2>Top 5 Productos Más Vendidos</h2>
-          <div className="grafico-wrapper">
-            {topProductos.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={topProductos} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="nombre" type="category" tick={{ fontSize: 11 }} width={100} />
-                  <RechartsTooltip formatter={(value) => `${value} unidades`} />
-                  <Bar dataKey="cantidad_vendida" fill="#27ae60" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="sin-datos">No hay productos vendidos aún.</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* TABLA DE ALERTAS */}
+      {/* TABLA DE ALERTAS: SIEMPRE VISIBLE (Para el vendedor, solo de su sucursal) */}
       <div className="card-alertas">
-        <h2>⚠️ Alertas de Stock Crítico</h2>
+        <h2>⚠️ Alertas de Stock Crítico {isVendedor ? 'de tu Sucursal' : ''}</h2>
         {alertasStock.length === 0 ? (
           <p className="sin-datos">Todo el stock está en niveles óptimos.</p>
         ) : (

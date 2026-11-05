@@ -5,11 +5,13 @@ import { ventasApi } from '../api/ventas';
 import FacturaModal from './FacturaModal';
 import { inventarioApi } from '../api/inventario';
 import { AuthContext } from '../AuthContext';
+import { cajasApi } from '../api/cajas';
 import { useContext } from 'react'; // Asegúrate de tenerlo
 import './PuntoVenta.css';
 
 export default function PuntoVenta() {
   const navigate = useNavigate();
+  const [sesionCaja, setSesionCaja] = useState(null);
   const inputBusqueda = useRef(null);
 
   // Dentro del componente:
@@ -42,7 +44,15 @@ export default function PuntoVenta() {
   const [celular, setCelular] = useState('');
   const [email, setEmail] = useState('');
 
-      useEffect(() => {
+  useEffect(() => {
+    const verificar = async () => {
+      const caja = await cajasApi.verificarCajaActiva();
+      setSesionCaja(caja);
+    };
+    verificar();
+  }, []);  
+
+  useEffect(() => {
     const cargar = async () => {
       try {
         const [al, pr] = await Promise.all([
@@ -266,6 +276,7 @@ export default function PuntoVenta() {
           cantidad: Number(c.cantidad),
           precio_unitario: Number(c.precio_unitario),
         })),
+        id_sesion_caja: sesionCaja.id_sesion, // 👈 AGREGAR ESTO
         monto_recibido: Number(montoRecibido),
         monto_cambio: montoCambio,
         monto_efectivo: metodoPago === 'mixto' ? Number(montoEfectivo) : (metodoPago === 'efectivo' ? total : 0),
@@ -275,6 +286,8 @@ export default function PuntoVenta() {
         cliente_razon_social: razonSocial,
         cliente_celular: celular,
         cliente_email: email
+        
+
       };
 
       const res = await ventasApi.crear(payload);

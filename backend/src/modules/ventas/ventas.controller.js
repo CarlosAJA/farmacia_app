@@ -2,7 +2,14 @@ const service = require('./ventas.service.js');
 
 const listar = async (req, res) => {
   try {
-    const data = await service.listarVentas(req.query);
+    const filtros = { ...req.query };
+    
+    // 👇 SI EL USUARIO ES VENDEDOR, FORZAMOS QUE SOLO VEA LAS VENTAS DE HOY
+    if (req.usuario && req.usuario.rol === 'vendedor') {
+      filtros.forzarHoy = true;
+    }
+
+    const data = await service.listarVentas(filtros);
     res.json({ ok: true, data });
   } catch (err) {
     console.error('Error listar ventas:', err.message);
