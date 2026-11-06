@@ -100,33 +100,23 @@ router.post('/login', async (req, res) => {
 
 // 2. REGISTRO / ALTA DE USUARIO
 router.post('/registro', verificarToken, permitirRoles('admin'), async (req, res) => {
-    const { nombre_completo, ci, direccion, telefono, email_personal, sucursal_id, rol } = req.body;
+    const { nombre, email, password, rol, sucursal_id } = req.body;
     try {
         const ROLES_VALIDOS = ['admin', 'vendedor', 'farmaceutico', 'almacenero'];
         const rolBD = ROLES_VALIDOS.includes(rol) ? rol : 'vendedor';
+        const hash = await bcrypt.hash(password, 10);
 
-        // Generar credenciales
-        const { email, passwordPlano } = await generarCredenciales(nombre_completo);
-        
-        // Hashear contraseña
-        const hash = await bcrypt.hash(passwordPlano, 10);
+        // 👇 FORZAMOS MAYÚSCULAS Y MINÚSCULAS
+        const nombreUpper = nombre.trim().toUpperCase();
+        const emailLower = email.trim().toLowerCase();
 
         await db.query(
-            `INSERT INTO usuarios 
-                (nombre, apellido, email, password, telefono, direccion, rol, estado, sucursal_id, ci, email_personal)
-             VALUES (?, "", ?, ?, ?, ?, ?, "activo", ?, ?, ?)`,
-            [nombre_completo, email, hash, telefono, direccion, rolBD, sucursal_id || null, ci, email_personal]
+            `INSERT INTO usuarios
+                (nombre, apellido, email, password, telefono, direccion, rol, estado, sucursal_id)
+             VALUES (?, "", ?, ?, "", "", ?, "activo", ?)`,
+            [nombreUpper, emailLower, hash, rolBD, sucursal_id || null]
         );
-
-        // Devolvemos las credenciales generadas para mostrarlas en pantalla
-        res.status(201).json({ 
-          ok: true, 
-          mensaje: 'Usuario registrado exitosamente.',
-          credenciales: {
-            email: email,
-            password: passwordPlano
-          }
-        });
+        res.status(201).json({ ok: true, mensaje: 'Usuario registrado exitosamente.' });
     } catch (err) {
         res.status(500).json({ ok: false, error: 'Error al registrar: ' + err.message });
     }

@@ -26,8 +26,19 @@ const obtenerSucursalPorId = async (id) => {
 };
 
 const crearSucursal = async (data) => {
-  // Validar que el código no exista
-  const [existe] = await pool.query('SELECT id FROM sucursales WHERE codigo = ?', [data.codigo]);
+  // 👇 1. FORMATEAMOS LOS DATOS AQUÍ AL INICIO
+  const dataFormateada = {
+    ...data,
+    codigo: data.codigo.trim().toUpperCase(),
+    nombre: data.nombre.trim().toUpperCase(),
+    direccion: data.direccion.trim().toUpperCase(),
+    departamento: data.departamento.trim().toUpperCase(),
+    ciudad: data.ciudad.trim().toUpperCase(),
+    email: data.email ? data.email.trim().toLowerCase() : null, // El email va en minúsculas
+  };
+
+  // Validar que el código no exista (usando el formateado)
+  const [existe] = await pool.query('SELECT id FROM sucursales WHERE codigo = ?', [dataFormateada.codigo]);
   if (existe.length > 0) {
     const error = new Error('Ya existe una sucursal con ese código');
     error.status = 409;
@@ -38,19 +49,19 @@ const crearSucursal = async (data) => {
   try {
     await connection.beginTransaction();
 
-    // 1. Crear la Sucursal
+    // 1. Crear la Sucursal (usando dataFormateada)
     const [result] = await connection.query(
       `INSERT INTO sucursales (codigo, nombre, direccion, departamento, ciudad, telefono, email, estado)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        data.codigo,
-        data.nombre,
-        data.direccion,
-        data.departamento,
-        data.ciudad,
-        data.telefono || null,
-        data.email || null,
-        data.estado || 'ACTIVA',
+        dataFormateada.codigo,
+        dataFormateada.nombre,
+        dataFormateada.direccion,
+        dataFormateada.departamento,
+        dataFormateada.ciudad,
+        dataFormateada.telefono || null,
+        dataFormateada.email || null,
+        dataFormateada.estado || 'ACTIVA',
       ]
     );
     const id_sucursal = result.insertId;
@@ -59,7 +70,7 @@ const crearSucursal = async (data) => {
     await connection.query(
       `INSERT INTO almacenes (nombre, id_sucursal, estado)
        VALUES (?, ?, 'activo')`,
-      [`Almacén ${data.nombre}`, id_sucursal]
+      [`Almacén ${dataFormateada.nombre}`, id_sucursal] // Usa el nombre formateado
     );
 
     await connection.commit();
@@ -78,20 +89,41 @@ const crearSucursal = async (data) => {
 
 const actualizarSucursal = async (id, data) => {
   await obtenerSucursalPorId(id);
+  
+  // 👇 1. FORMATEAMOS LOS DATOS QUE LLEGAN
+  const dataFormateada = { ...data };
+  
+  // Convertimos a mayúsculas solo si el campo viene en el objeto
+  const camposTexto = ['codigo', 'nombre', 'direccion', 'departamento', 'ciudad'];
+  camposTexto.forEach((campo) => {
+    if (dataFormateada[campo]) {
+      dataFormateada[campo] = dataFormateada[campo].trim().toUpperCase();
+    }
+  });
+  
+  // El email siempre en minúsculas
+  if (dataFormateada.email) {
+    dataFormateada.email = dataFormateada.email.trim().toLowerCase();
+  }
+
   const campos = ['codigo', 'nombre', 'direccion', 'departamento', 'ciudad', 'telefono', 'email', 'estado'];
   const sets = [];
   const values = [];
+  
   for (const campo of campos) {
-    if (data[campo] !== undefined) {
+    // 👇 2. ITERAMOS SOBRE dataFormateada
+    if (dataFormateada[campo] !== undefined) {
       sets.push(`${campo} = ?`);
-      values.push(data[campo]);
+      values.push(dataFormateada[campo]);
     }
   }
+  
   if (sets.length === 0) {
     const err = new Error('No se enviaron campos para actualizar');
     err.status = 400;
     throw err;
   }
+  
   values.push(id);
   await pool.query(`UPDATE sucursales SET ${sets.join(', ')} WHERE id = ?`, values);
   return obtenerSucursalPorId(id);

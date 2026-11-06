@@ -62,6 +62,14 @@ const obtenerProductoPorId = async (id) => {
 };
 
 const crearProducto = async (data) => {
+  // 👇 1. FORMATEAMOS LOS DATOS A MAYÚSCULAS
+  const dataFormateada = {
+    ...data,
+    codigo: data.codigo ? data.codigo.trim().toUpperCase() : null,
+    nombre: data.nombre ? data.nombre.trim().toUpperCase() : null,
+    presentacion: data.presentacion ? data.presentacion.trim().toUpperCase() : null,
+    descripcion: data.descripcion ? data.descripcion.trim().toUpperCase() : null,
+  };
   const [existe] = await pool.query(
     'SELECT id_producto FROM productos WHERE codigo = ?',
     [data.codigo]
@@ -78,19 +86,19 @@ const crearProducto = async (data) => {
        precio_compra, precio_venta, stock_minimo, requiere_receta, fecha_fabricacion, fecha_vencimiento)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      data.codigo,
-      data.nombre,
-      data.presentacion || null,
-      data.descripcion || null,
-      data.id_categoria || null,
-      data.id_laboratorio || null,
-      data.id_proveedor || null,
-      data.precio_compra || 0,
-      data.precio_venta || 0,
-      data.stock_minimo || 0,
-      data.requiere_receta ? 1 : 0,
-      data.fecha_fabricacion || null,
-      data.fecha_vencimiento || null,
+      dataFormateada.codigo,
+      dataFormateada.nombre,
+      dataFormateada.presentacion || null,
+      dataFormateada.descripcion || null,
+      dataFormateada.id_categoria || null,
+      dataFormateada.id_laboratorio || null,
+      dataFormateada.id_proveedor || null,
+      dataFormateada.precio_compra || 0,
+      dataFormateada.precio_venta || 0,
+      dataFormateada.stock_minimo || 0,
+      dataFormateada.requiere_receta ? 1 : 0,
+      dataFormateada.fecha_fabricacion || null,
+      dataFormateada.fecha_vencimiento || null,
     ]
   );
 
@@ -99,6 +107,14 @@ const crearProducto = async (data) => {
 
 const actualizarProducto = async (id, data) => {
   await obtenerProductoPorId(id);
+  const dataFormateada = { ...data };
+  
+  const camposTexto = ['codigo', 'nombre', 'presentacion', 'descripcion'];
+  camposTexto.forEach((campo) => {
+    if (dataFormateada[campo] !== undefined) {
+      dataFormateada[campo] = dataFormateada[campo].trim().toUpperCase();
+    }
+  });
 
   const campos = [
     'codigo', 'nombre', 'presentacion', 'descripcion',
@@ -111,9 +127,9 @@ const actualizarProducto = async (id, data) => {
   const values = [];
 
   for (const campo of campos) {
-    if (data[campo] !== undefined) {
+    if (dataFormateada[campo] !== undefined) {
       sets.push(`${campo} = ?`);
-      values.push(campo === 'requiere_receta' ? (data[campo] ? 1 : 0) : data[campo]);
+      values.push(campo === 'requiere_receta' ? (dataFormateada[campo] ? 1 : 0) : dataFormateada[campo]);
     }
   }
 

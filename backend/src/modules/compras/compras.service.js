@@ -142,7 +142,7 @@ const crearCompra = async (data, id_usuario) => {
     const total = subtotal + iva - Number(descuento);
 
     const numero_orden = await generarNumeroOrden();
-
+    const observacionesFormateadas = observaciones ? observaciones.trim().toUpperCase() : null;
     const [result] = await connection.query(
       `INSERT INTO compras
         (numero_orden, id_usuario, id_proveedor, id_almacen, fecha_entrega,
@@ -151,7 +151,7 @@ const crearCompra = async (data, id_usuario) => {
       [
         numero_orden, id_usuario, id_proveedor, id_almacen,
         fecha_entrega || null, subtotal, iva, descuento, total,
-        tipo_pago, dias_credito, observaciones || null,
+        tipo_pago, dias_credito, observacionesFormateadas || null,
       ]
     );
 
@@ -159,13 +159,14 @@ const crearCompra = async (data, id_usuario) => {
 
     for (const d of detalles) {
       const subtotalLinea = Number(d.cantidad) * Number(d.precio_unitario);
+      const loteFormateado = d.lote ? d.lote.trim().toUpperCase() : null;
       await connection.query(
         `INSERT INTO detalle_compra
           (id_compra, id_producto, cantidad, precio_unitario, subtotal, lote, fecha_vencimiento_lote)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           id_compra, d.id_producto, d.cantidad, d.precio_unitario, subtotalLinea,
-          d.lote || null, d.fecha_vencimiento_lote || null,
+          loteFormateado || null, d.fecha_vencimiento_lote || null,
         ]
       );
     }

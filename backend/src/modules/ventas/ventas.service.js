@@ -100,6 +100,9 @@ const crearVenta = async (data, id_usuario) => {
     // 1. Lógica del Cliente
     let id_cliente = null;
     if (cliente_nit && cliente_razon_social) {
+      const nitFormateado = cliente_nit.trim().toUpperCase();
+      const razonFormateada = cliente_razon_social.trim().toUpperCase();
+      const emailFormateado = cliente_email ? cliente_email.trim().toLowerCase() : null;
       const [resultCli] = await connection.query(
         `INSERT INTO clientes (nit_ci, razon_social, celular, email) 
          VALUES (?, ?, ?, ?) 
@@ -107,7 +110,7 @@ const crearVenta = async (data, id_usuario) => {
          razon_social = VALUES(razon_social), 
          celular = VALUES(celular), 
          email = VALUES(email)`,
-        [cliente_nit, cliente_razon_social, cliente_celular || null, cliente_email || null]
+        [nitFormateado, razonFormateada, cliente_celular || null, emailFormateado || null]
       );
 
       if (resultCli.insertId) {
