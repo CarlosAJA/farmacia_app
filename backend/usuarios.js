@@ -189,6 +189,40 @@ router.put('/:id', verificarToken, permitirRoles('admin'), async (req, res) => {
         res.status(500).json({ ok: false, error: err.message });
     }
 });
+// 6. CAMBIAR CONTRASEÑA (Para cualquier usuario logueado)
+router.put('/change-password', verificarToken, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const id_usuario = req.usuario.id; // Obtenemos el ID del token JWT
 
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ ok: false, error: 'Debes enviar la contraseña actual y la nueva.' });
+    }
+
+    if (newPassword.length < 6) {
+        return res.status(400).json({ ok: false, error: 'La nueva contraseña debe tener al menos 6 caracteres.' });
+    }
+
+    try {
+        // 1. Buscar al usuario
+        const [rows] = await db.query('SELECT password FROM usuarios WHERE id_usuario = ?', [id_usuario]);
+        if (rows.length === 0) return res.status(404).json({ ok: false, error: 'Usuario no encontrado.' });
+
+        const usuario = rows[0];
+
+        // 2. Verificar que la contraseña actual sea correcta
+        const passwordValido = await bcrypt.compare(oldPassword, usuario.password);
+        if (!passwordValido) {
+            return res.status(400).json({ ok: false, error: 'La contraseña actual es incorrecta.' });
+        }
+
+        // 3. Encriptar y guardar la nueva
+        const hash = await bcrypt.hash(newPassword, 10);
+        await db.query('UPDATE usuarios SET password = ? WHERE id_usuario = ?', [hash, id_usuario]);
+
+        res.json({ ok: true, mensaje: 'Contraseña actualizada correctamente.' });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: 'Error al cambiar la contraseña: ' + err.message });
+    }
+});
 
 module.exports = router;

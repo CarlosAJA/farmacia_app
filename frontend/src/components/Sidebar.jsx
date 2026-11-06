@@ -1,10 +1,13 @@
 import { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import CambiarPasswordModal from './CambiarPasswordModal';
 import { AuthContext } from '../AuthContext';
 import './Sidebar.css';
 
 const Sidebar = () => {
     const { user, logout } = useContext(AuthContext);
+    const [mostrarModalPwd, setMostrarModalPwd] = useState(false);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -17,13 +20,21 @@ const Sidebar = () => {
     const esAdmin = user.rol?.toLowerCase() === 'administrador' || user.rol?.toLowerCase() === 'admin';
 
     return (
+        <>
         <div className="sidebar">
             <div className="sidebar-header">
                 <h3>💊 FarmaApp</h3>
-                <div className="user-badge">
-                    <span className="user-name">{user.nombre}</span>
-                    <span className="user-rol">{user.rol}</span>
-                </div>
+                <div className="sidebar-user-card">
+                    <span className="user-name">{user?.nombre}</span>
+                    <span className="user-role">{user?.rol}</span>
+                    {/* 👇 BOTÓN PARA CAMBIAR CONTRASEÑA 👇 */}
+                    <button 
+                        onClick={() => setMostrarModalPwd(true)} 
+                        className="btn-cambiar-pwd-sidebar"
+                    >
+                        🔑 Cambiar Clave
+                    </button>
+        </div>
             </div>
 
             {/* 🛒 VISTAS COMUNES / VENDEDOR */}
@@ -80,6 +91,10 @@ const Sidebar = () => {
                 </button>
             </div>
         </div>
+        {mostrarModalPwd && (
+        <CambiarPasswordModal onClose={() => setMostrarModalPwd(false)} />
+      )}
+                </>
     );
 };
 

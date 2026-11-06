@@ -97,3 +97,21 @@
 .logout-button:hover {
     background-color: #dc2626;
 }
+
+.btn-cambiar-pwd-sidebar {
+  margin-top: 10px;
+  width: 100%;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #bdc3c7;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+.btn-cambiar-pwd-sidebar:hover {
+  background: #3498db;
+  color: white;
+  border-color: #3498db;
+}
