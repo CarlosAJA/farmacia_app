@@ -58,8 +58,8 @@ const GestionInventario = () => {
     try {
       // Hacemos las dos peticiones al mismo tiempo
       const [sucRes, almRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/sucursales', headersAuth()),
-        axios.get('http://localhost:5000/api/catalogos/almacenes', headersAuth())
+        axios.get('/sucursales', headersAuth()),
+        axios.get('/catalogos/almacenes', headersAuth())
       ]);
       setSucursales(sucRes.data.data || []);
       setAlmacenes(almRes.data.data || []); // 👈 Ahora sí llenamos los almacenes
