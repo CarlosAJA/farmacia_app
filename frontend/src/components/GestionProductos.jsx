@@ -9,14 +9,13 @@ const FORM_VACIO = {
   nombre: '',
   presentacion: '',
   descripcion: '',
-  id_categoria: '',
-  id_laboratorio: '',
-  id_proveedor: '',
+  categoria_nombre: '',
+  laboratorio_nombre: '',
+  proveedor_nombre: '',
   precio_compra: '',
   precio_venta: '',
   stock_minimo: 0,
   requiere_receta: false,
-  fecha_fabricacion: '',
   fecha_vencimiento: '',
 };
 
@@ -35,17 +34,11 @@ export default function GestionProductos() {
   const cargar = async () => {
     try {
       setCargando(true);
-      const [prod, cat, lab, prov, al] = await Promise.all([
+      const [prod, al] = await Promise.all([
         productosApi.listar(),
-        catalogosApi.listarCategorias(),
-        catalogosApi.listarLaboratorios(),
-        catalogosApi.listarProveedores(),
         productosApi.alertas(),
       ]);
       setProductos(prod || []);
-      setCategorias(cat || []);
-      setLaboratorios(lab || []);
-      setProveedores(prov || []);
       setAlertas(al || { stockBajo: [], porVencer: [], vencidos: [] });
     } catch (e) {
       setError(e.response?.data?.error || 'Error al cargar productos');
@@ -63,20 +56,16 @@ export default function GestionProductos() {
     setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setExito(null);
     try {
       const payload = {
         ...form,
-        id_categoria: form.id_categoria || null,
-        id_laboratorio: form.id_laboratorio || null,
-        id_proveedor: form.id_proveedor || null,
         precio_compra: Number(form.precio_compra) || 0,
         precio_venta: Number(form.precio_venta) || 0,
         stock_minimo: Number(form.stock_minimo) || 0,
-        fecha_fabricacion: form.fecha_fabricacion || null,
         fecha_vencimiento: form.fecha_vencimiento || null,
       };
 
@@ -95,20 +84,18 @@ export default function GestionProductos() {
     }
   };
 
-  const handleEditar = (p) => {
+    const handleEditar = (p) => {
     setForm({
       codigo: p.codigo,
       nombre: p.nombre,
       presentacion: p.presentacion || '',
       descripcion: p.descripcion || '',
-      id_categoria: p.id_categoria || '',
-      id_laboratorio: p.id_laboratorio || '',
-      id_proveedor: p.id_proveedor || '',
+      categoria_nombre: p.categoria_nombre || '',       // 👈 Tomamos el nombre
+      laboratorio_nombre: p.laboratorio_nombre || '',   // 👈 Tomamos el nombre
       precio_compra: p.precio_compra,
       precio_venta: p.precio_venta,
       stock_minimo: p.stock_minimo,
       requiere_receta: p.requiere_receta === 1 || p.requiere_receta === true,
-      fecha_fabricacion: p.fecha_fabricacion?.split('T')[0] || '',
       fecha_vencimiento: p.fecha_vencimiento?.split('T')[0] || '',
     });
     setEditandoId(p.id);
@@ -224,34 +211,21 @@ export default function GestionProductos() {
       <form onSubmit={handleSubmit} className="form-producto">
         <h3>{editandoId ? 'Editar Producto' : 'Nuevo Producto'}</h3>
 
-        <div className="form-grid">
-          <input name="codigo" placeholder="Código *" required maxLength={50}
+                <div className="form-grid">
+          <input name="codigo" placeholder="Código *" required maxLength={50} className="input-mayusculas"
             value={form.codigo} onChange={handleChange} />
-          <input name="nombre" placeholder="Nombre *" required maxLength={200}
+          <input name="nombre" placeholder="Nombre *" required maxLength={200} className="input-mayusculas"
             value={form.nombre} onChange={handleChange} />
-          <input name="presentacion" placeholder="Presentación (ej: X 100 TABLETAS)"
+          <input name="presentacion" placeholder="Presentación (ej: X 100 TABLETAS)" className="input-mayusculas"
             value={form.presentacion} onChange={handleChange} />
 
-          <select name="id_categoria" value={form.id_categoria} onChange={handleChange}>
-            <option value="">— Categoría —</option>
-            {categorias.map((c) => (
-              <option key={c.id} value={c.id}>{c.nombre}</option>
-            ))}
-          </select>
+          {/* 👇 CATEGORÍA POR TECLADO */}
+          <input name="categoria_nombre" placeholder="Categoría (ej: Analgésico) *" required className="input-mayusculas"
+            value={form.categoria_nombre} onChange={handleChange} />
 
-          <select name="id_laboratorio" value={form.id_laboratorio} onChange={handleChange}>
-            <option value="">— Laboratorio —</option>
-            {laboratorios.map((l) => (
-              <option key={l.id} value={l.id}>{l.nombre}</option>
-            ))}
-          </select>
-
-          <select name="id_proveedor" value={form.id_proveedor} onChange={handleChange}>
-            <option value="">— Proveedor —</option>
-            {proveedores.map((p) => (
-              <option key={p.id} value={p.id}>{p.nombre}</option>
-            ))}
-          </select>
+          {/* 👇 LABORATORIO Y PROVEEDOR UNIFICADOS */}
+          <input name="laboratorio_nombre" placeholder="Laboratorio / Proveedor *" required className="input-mayusculas"
+            value={form.laboratorio_nombre} onChange={handleChange} />
 
           <input name="precio_compra" type="number" step="0.01" placeholder="Precio compra"
             value={form.precio_compra} onChange={handleChange} />
@@ -260,12 +234,7 @@ export default function GestionProductos() {
           <input name="stock_minimo" type="number" placeholder="Stock mínimo"
             value={form.stock_minimo} onChange={handleChange} />
 
-           <div className="form-group-fecha">
-            <label>Fecha de Fabricación</label>
-            <input name="fecha_fabricacion" type="date"
-              value={form.fecha_fabricacion} onChange={handleChange} />
-          </div>
-
+          {/* 👇 SOLO FECHA DE VENCIMIENTO */}
           <div className="form-group-fecha">
             <label>Fecha de Vencimiento</label>
             <input name="fecha_vencimiento" type="date"
