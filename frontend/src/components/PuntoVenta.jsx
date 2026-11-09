@@ -232,7 +232,7 @@ export default function PuntoVenta() {
     if (!nitCi.trim()) return;
     
     try {
-      const res = await fetch(`http://localhost:5000/api/clientes/${nitCi}`, {
+      const res = await fetch(`/clientes/${nitCi}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await res.json();
