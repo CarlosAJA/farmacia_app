@@ -261,6 +261,9 @@ export default function PuntoVenta() {
     setError(null);
     setExito(null);
     setVentaFactura(null);
+    if (!sesionCaja && user?.rol !== 'admin') {
+      return setError('Debes realizar la Apertura de Caja antes de poder cobrar.');
+    }
 
     if (!idAlmacen) return setError('Selecciona un almacén');
     if (carrito.length === 0) return setError('El carrito está vacío');
@@ -279,7 +282,7 @@ export default function PuntoVenta() {
           cantidad: Number(c.cantidad),
           precio_unitario: Number(c.precio_unitario),
         })),
-        id_sesion_caja: sesionCaja.id_sesion, // 👈 AGREGAR ESTO
+        id_sesion_caja: sesionCaja ? sesionCaja.id_sesion : null, // 👈 AGREGAR ESTO
         monto_recibido: Number(montoRecibido),
         monto_cambio: montoCambio,
         monto_efectivo: metodoPago === 'mixto' ? Number(montoEfectivo) : (metodoPago === 'efectivo' ? total : 0),

@@ -165,7 +165,22 @@ const crearVenta = async (data, id_usuario) => {
         `INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)`,
         [id_venta, d.id_producto, d.cantidad, d.precio_unitario, subtotalLinea]
       );
+      
+      // 👇 AGREGAR ESTO: DESCONTAR STOCK Y REGISTRAR EN KARDEX
+      await connection.query(
+        `UPDATE inventario SET cantidad = cantidad - ? WHERE id_producto = ? AND id_almacen = ?`,
+        [d.cantidad, d.id_producto, id_almacen]
+      );
+
+      await connection.query(
+        `INSERT INTO movimientos_inventario (id_producto, id_almacen, tipo_movimiento, cantidad, motivo, id_usuario)
+         VALUES (?, ?, 'salida', ?, ?, ?)`,
+        [d.id_producto, id_almacen, d.cantidad, `Venta #${id_venta}`, id_usuario]
+      );
     }
+
+    // 6. UPDATE Estado
+    await connection.query("UPDATE ventas SET estado = 'completada' WHERE id_venta = ?", [id_venta]);
 
     // 6. UPDATE Estado
     await connection.query("UPDATE ventas SET estado = 'completada' WHERE id_venta = ?", [id_venta]);
