@@ -7,6 +7,7 @@ import { inventarioApi } from '../api/inventario';
 import { AuthContext } from '../AuthContext';
 import { cajasApi } from '../api/cajas';
 import { useContext } from 'react'; // Asegúrate de tenerlo
+import api from '../api/axios';
 import './PuntoVenta.css';
 
 export default function PuntoVenta() {
@@ -232,24 +233,25 @@ export default function PuntoVenta() {
     if (!nitCi.trim()) return;
     
     try {
-      const res = await fetch(`/clientes/${nitCi}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      const data = await res.json();
+      // 👇 Usamos la instancia api en lugar de fetch
+      const res = await api.get(`/clientes/${nitCi}`);
+      const data = res.data;
       
       if (data.ok && data.data) {
-        // Si existe, llenamos los campos
         setRazonSocial(data.data.razon_social);
         setCelular(data.data.celular || '');
         setEmail(data.data.email || '');
       } else {
-        // Si no existe, limpiamos los campos para que ingrese uno nuevo
         setRazonSocial('');
         setCelular('');
         setEmail('');
       }
     } catch (error) {
       console.error('Error al buscar cliente', error);
+      // Opcional: si no lo encuentra, limpias los campos
+      setRazonSocial('');
+      setCelular('');
+      setEmail('');
     }
   };
 
