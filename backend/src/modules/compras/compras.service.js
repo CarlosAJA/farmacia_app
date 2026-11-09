@@ -109,7 +109,7 @@ const obtenerCompraPorId = async (id) => {
 
 const crearCompra = async (data, id_usuario) => {
   const {
-    id_proveedor,
+    proveedor_nombre, // 👈 Recibimos el nombre
     id_almacen,
     fecha_entrega,
     tipo_pago = 'contado',
@@ -119,21 +119,34 @@ const crearCompra = async (data, id_usuario) => {
     detalles = [],
   } = data;
 
-  if (!id_proveedor || !id_almacen) {
-    const err = new Error('Proveedor y almacén son obligatorios');
-    err.status = 400;
-    throw err;
+  if (!proveedor_nombre || !id_almacen) {
+    throw new Error('El nombre del proveedor y el almacén son obligatorios');
   }
   if (detalles.length === 0) {
-    const err = new Error('Debes agregar al menos un producto');
-    err.status = 400;
-    throw err;
+    throw new Error('Debes agregar al menos un producto');
   }
 
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
 
+    // 👇 1. BUSCAR O CREAR EL PROVEEDOR
+    let id_proveedor = null;
+    const nombreProv = proveedor_nombre.trim().toUpperCase();
+    
+    const [prov] = await connection.query('SELECT id_proveedor FROM proveedores WHERE nombre_empresa = ?', [nombreProv]);
+    if (prov.length > 0) {
+      id_proveedor = prov[0].id_proveedor;
+    } else {
+      // Si no existe, lo creamos con los datos mínimos
+      const [newProv] = await connection.query(
+        'INSERT INTO proveedores (nombre_empresa, estado) VALUES (?, "activo")', 
+        [nombreProv]
+      );
+      id_proveedor = newProv.insertId;
+    }
+
+    // 2. Calcular totales
     let subtotal = 0;
     for (const d of detalles) {
       subtotal += Number(d.cantidad) * Number(d.precio_unitario);
@@ -142,7 +155,8 @@ const crearCompra = async (data, id_usuario) => {
     const total = subtotal + iva - Number(descuento);
 
     const numero_orden = await generarNumeroOrden();
-    const observacionesFormateadas = observaciones ? observaciones.trim().toUpperCase() : null;
+
+    // 3. INSERT COMPRA (Usando el id_proveedor encontrado o creado)
     const [result] = await connection.query(
       `INSERT INTO compras
         (numero_orden, id_usuario, id_proveedor, id_almacen, fecha_entrega,
@@ -151,23 +165,20 @@ const crearCompra = async (data, id_usuario) => {
       [
         numero_orden, id_usuario, id_proveedor, id_almacen,
         fecha_entrega || null, subtotal, iva, descuento, total,
-        tipo_pago, dias_credito, observacionesFormateadas || null,
+        tipo_pago, dias_credito, observaciones ? observaciones.toUpperCase() : null,
       ]
     );
 
     const id_compra = result.insertId;
 
+    // 4. INSERT DETALLES (Sin lote ni vencimiento)
     for (const d of detalles) {
       const subtotalLinea = Number(d.cantidad) * Number(d.precio_unitario);
-      const loteFormateado = d.lote ? d.lote.trim().toUpperCase() : null;
       await connection.query(
         `INSERT INTO detalle_compra
-          (id_compra, id_producto, cantidad, precio_unitario, subtotal, lote, fecha_vencimiento_lote)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [
-          id_compra, d.id_producto, d.cantidad, d.precio_unitario, subtotalLinea,
-          loteFormateado || null, d.fecha_vencimiento_lote || null,
-        ]
+          (id_compra, id_producto, cantidad, precio_unitario, subtotal)
+         VALUES (?, ?, ?, ?, ?)`,
+        [id_compra, d.id_producto, d.cantidad, d.precio_unitario, subtotalLinea]
       );
     }
 

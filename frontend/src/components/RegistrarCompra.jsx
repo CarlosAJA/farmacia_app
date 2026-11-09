@@ -7,8 +7,7 @@ const DETALLE_VACIO = {
   id_producto: '',
   cantidad: 1,
   precio_unitario: 0,
-  lote: '',
-  fecha_vencimiento_lote: '',
+  
 };
 
 export default function RegistrarCompra() {
@@ -20,7 +19,7 @@ export default function RegistrarCompra() {
   const [almacenes, setAlmacenes] = useState([]);
 
   // Cabecera
-  const [idProveedor, setIdProveedor] = useState('');
+ const [proveedorNombre, setProveedorNombre] = useState('');
   const [idAlmacen, setIdAlmacen] = useState('');
   const [fechaEntrega, setFechaEntrega] = useState('');
   const [tipoPago, setTipoPago] = useState('contado');
@@ -121,7 +120,7 @@ export default function RegistrarCompra() {
     setCargando(true);
     try {
       const payload = {
-        id_proveedor: Number(idProveedor),
+        proveedor_nombre: proveedorNombre, // 👈 Nuevo campo
         id_almacen: Number(idAlmacen),
         fecha_entrega: fechaEntrega || null,
         tipo_pago: tipoPago,
@@ -167,15 +166,15 @@ export default function RegistrarCompra() {
           <h2>Datos de la orden</h2>
           <div className="form-grid">
             <div className="form-group">
-              <label>Proveedor *</label>
-              <select value={idProveedor} onChange={(e) => setIdProveedor(e.target.value)} required>
-                <option value="">— Seleccionar —</option>
-                {proveedores.map((p) => (
-                  <option key={p.id_proveedor} value={p.id_proveedor}>
-                    {p.nombre_empresa}
-                  </option>
-                ))}
-              </select>
+              <label>Proveedor / Laboratorio *</label>
+              <input 
+                type="text"
+                value={proveedorNombre}
+                onChange={(e) => setProveedorNombre(e.target.value)}
+                placeholder="Ej. ALFA LTDA."
+                className="input-mayusculas"
+                required
+              />
             </div>
 
             <div className="form-group">
@@ -271,24 +270,7 @@ export default function RegistrarCompra() {
                 }
               />
             </div>
-            <div className="form-group">
-              <label>Lote (opcional)</label>
-              <input
-                type="text"
-                value={detalleActual.lote}
-                onChange={(e) => setDetalleActual({ ...detalleActual, lote: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label>Vencimiento (opcional)</label>
-              <input
-                type="date"
-                value={detalleActual.fecha_vencimiento_lote}
-                onChange={(e) =>
-                  setDetalleActual({ ...detalleActual, fecha_vencimiento_lote: e.target.value })
-                }
-              />
-            </div>
+            
             <button type="button" onClick={agregarDetalle} className="btn-agregar">
               + Agregar
             </button>

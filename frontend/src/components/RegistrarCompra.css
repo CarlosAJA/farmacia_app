@@ -191,3 +191,9 @@
   background: #95a5a6;
   color: white;
 }
+.form-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1.5fr; /* Proveedor y Almacén más anchos */
+  gap: 15px;
+  align-items: end;
+}
