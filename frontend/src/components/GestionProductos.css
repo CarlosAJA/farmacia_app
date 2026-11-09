@@ -57,8 +57,8 @@
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 15px;
+  align-items: end; /* 👈 ESTA ES LA SOLUCIÓN MÁGICA */
 }
 
 .form-grid input,
