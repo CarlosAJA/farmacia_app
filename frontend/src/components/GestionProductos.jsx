@@ -260,10 +260,17 @@ export default function GestionProductos() {
           <input name="stock_minimo" type="number" placeholder="Stock mínimo"
             value={form.stock_minimo} onChange={handleChange} />
 
-          <input name="fecha_fabricacion" type="date" placeholder="Fecha fabricación"
-            value={form.fecha_fabricacion} onChange={handleChange} />
-          <input name="fecha_vencimiento" type="date" placeholder="Fecha vencimiento"
-            value={form.fecha_vencimiento} onChange={handleChange} />
+           <div className="form-group-fecha">
+            <label>Fecha de Fabricación</label>
+            <input name="fecha_fabricacion" type="date"
+              value={form.fecha_fabricacion} onChange={handleChange} />
+          </div>
+
+          <div className="form-group-fecha">
+            <label>Fecha de Vencimiento</label>
+            <input name="fecha_vencimiento" type="date"
+              value={form.fecha_vencimiento} onChange={handleChange} />
+          </div>
 
           <label className="checkbox-label">
             <input type="checkbox" name="requiere_receta"

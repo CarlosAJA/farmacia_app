@@ -117,3 +117,25 @@
 .badge-proximo { background: #fef3c7; color: #92400e; }
 .badge-por-vencer { background: #fed7aa; color: #9a3412; }
 .badge-vencido { background: #fecaca; color: #991b1b; }
+.form-group-fecha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group-fecha label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #34495e;
+  padding-left: 2px;
+}
+
+.form-group-fecha input {
+  /* Mantiene los mismos estilos que los otros inputs del form-grid */
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
