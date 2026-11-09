@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 import { catalogosApi } from '../api/compras';
 import { ventasApi } from '../api/ventas';
 import FacturaModal from './FacturaModal';
@@ -7,7 +8,7 @@ import { inventarioApi } from '../api/inventario';
 import { AuthContext } from '../AuthContext';
 import { cajasApi } from '../api/cajas';
 import { useContext } from 'react'; // Asegúrate de tenerlo
-import api from '../api/axios';
+
 import './PuntoVenta.css';
 
 export default function PuntoVenta() {
