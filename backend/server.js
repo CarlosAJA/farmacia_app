@@ -6,7 +6,16 @@ require('dotenv').config();
 const app = express();
 
 // Middlewares obligatorios
-app.use(cors());
+// Configuración explícita de CORS para producción
+const corsOptions = {
+    origin: 'https://farmacia-app-mocha.vercel.app', // El dominio de tu frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true, // Permite el envío de tokens/credenciales
+    optionsSuccessStatus: 200 // Algunos navegadores (como IE11) fallan con 204
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Enrutamiento de usuarios (Login, Altas, Bajas)
