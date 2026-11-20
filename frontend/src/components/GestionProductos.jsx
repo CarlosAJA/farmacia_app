@@ -11,12 +11,7 @@ const FORM_VACIO = {
   descripcion: '',
   categoria_nombre: '',
   laboratorio_nombre: '',
-  proveedor_nombre: '',
-  precio_compra: '',
-  precio_venta: '',
-  stock_minimo: 0,
   requiere_receta: false,
-  fecha_vencimiento: '',
 };
 
 export default function GestionProductos() {
@@ -227,20 +222,7 @@ export default function GestionProductos() {
           <input name="laboratorio_nombre" placeholder="Laboratorio / Proveedor *" required className="input-mayusculas"
             value={form.laboratorio_nombre} onChange={handleChange} />
 
-          <input name="precio_compra" type="number" step="0.01" placeholder="Precio compra"
-            value={form.precio_compra} onChange={handleChange} />
-          <input name="precio_venta" type="number" step="0.01" placeholder="Precio venta"
-            value={form.precio_venta} onChange={handleChange} />
-          <input name="stock_minimo" type="number" placeholder="Stock mínimo"
-            value={form.stock_minimo} onChange={handleChange} />
-
-          {/* 👇 SOLO FECHA DE VENCIMIENTO */}
-          <div className="form-group-fecha">
-            <label>Fecha de Vencimiento</label>
-            <input name="fecha_vencimiento" type="date"
-              value={form.fecha_vencimiento} onChange={handleChange} />
-          </div>
-
+          
           <label className="checkbox-label">
             <input type="checkbox" name="requiere_receta"
               checked={form.requiere_receta} onChange={handleChange} />
