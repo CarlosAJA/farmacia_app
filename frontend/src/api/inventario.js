@@ -17,4 +17,12 @@ export const inventarioApi = {
     const response = await api.post('/inventario/transferir', data);
     return response.data;
   },
+  agregarLote: async (data) => {
+    const res = await api.post('/inventario/lotes', data);
+    return res.data;
+  },
+  obtenerLotes: async (id_producto, id_almacen) => {
+    const res = await api.get('/inventario/lotes', { params: { id_producto, id_almacen } });
+    return res.data.data;
+  },
 };

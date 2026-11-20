@@ -13,4 +13,6 @@ router.post('/', permitirRoles('admin', 'farmaceutico'), controller.crear);
 router.put('/:id', permitirRoles('admin', 'farmaceutico'), controller.actualizar);
 router.delete('/:id', permitirRoles('admin'), controller.eliminar);
 
+router.put('/:id/configurar', controller.configurar);
+
 module.exports = router;

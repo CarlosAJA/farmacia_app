@@ -25,4 +25,9 @@ export const productosApi = {
     const { data } = await api.get('/productos/alertas');
     return data.data;
   },
+
+  configurar: async (id, data) => {
+    const res = await api.put(`/productos/${id}/configurar`, data);
+    return res.data;
+  },
 };

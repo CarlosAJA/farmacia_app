@@ -3,6 +3,7 @@ import axios from 'axios';
 import Tabla from './Tabla';
 import { inventarioApi } from '../api/inventario';
 import { exportarAExcel } from '../utils/excelUtils';
+import { productosApi } from '../api/productos';
 import './GestionInventario.css';
 
 const GestionInventario = () => {
@@ -32,6 +33,16 @@ const GestionInventario = () => {
   const [cantidadTraspaso, setCantidadTraspaso] = useState('');
   const [almacenDestino, setAlmacenDestino] = useState('');
   const [motivoTraspaso, setMotivoTraspaso] = useState('');
+
+  const [modalConfig, setModalConfig] = useState(false);
+  const [itemConfig, setItemConfig] = useState(null);
+  const [precioVenta, setPrecioVenta] = useState('');
+  const [stockMinimo, setStockMinimo] = useState('');
+  
+  // Estados para Lotes
+  const [lotes, setLotes] = useState([]);
+  const [nuevaFecha, setNuevaFecha] = useState('');
+  //const [nuevaCantidad, setNuevaCantidad] = useState('');
 
   const headersAuth = () => ({
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -130,15 +141,15 @@ const GestionInventario = () => {
       render: (item) => item.stock_minimo,
     },
     {
-      key: 'acciones',
-      label: 'Acciones',
-      render: (item) => (
-        <div style={{ display: 'flex', gap: '5px' }}>
-          <button onClick={() => abrirModal(item)} className="btn-ajustar">Ajustar</button>
-          <button onClick={() => abrirTraspaso(item)} className="btn-traspaso">Transferir</button>
-        </div>
-      ),
-    },
+        key: 'acciones',
+        label: 'Acciones',
+        render: (item) => (
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <button onClick={() => abrirConfiguracion(item)} className="btn-config">⚙️ Configurar</button>
+            <button onClick={() => abrirModal(item)} className="btn-ajustar">Ajustar</button>
+          </div>
+        ),
+      },
   ];
 
    const abrirTraspaso = (item) => {
@@ -192,7 +203,54 @@ const GestionInventario = () => {
     
     exportarAExcel(inventario, columnasExcel, 'Reporte_Inventario');
   };
+  const abrirConfiguracion = async (item) => {
+    setItemConfig(item);
+    setPrecioVenta(item.precio_venta || '');
+    setStockMinimo(item.stock_minimo || '');
+    setModalConfig(true);
+    
+    // Cargar lotes existentes
+    try {
+      const dataLotes = await inventarioApi.obtenerLotes(item.id_producto, item.id_almacen);
+      setLotes(dataLotes || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  const handleGuardarConfiguracion = async () => {
+    try {
+      await productosApi.configurar(itemConfig.id_producto, {
+        precio_venta: Number(precioVenta),
+        stock_minimo: Number(stockMinimo)
+      });
+      mostrarMensaje('Configuración guardada.', 'exito');
+      setModalConfig(false);
+      cargarInventario();
+    } catch (err) {
+      mostrarMensaje('Error al guardar configuración', 'error');
+    }
+  };
+
+  const handleAgregarLote = async () => {
+    if (!nuevaFecha || !nuevaCantidad) return mostrarMensaje('Completa fecha y cantidad', 'error');
+    try {
+      await inventarioApi.agregarLote({
+        id_producto: itemConfig.id_producto,
+        id_almacen: itemConfig.id_almacen,
+        fecha_vencimiento: nuevaFecha,
+        cantidad: Number(nuevaCantidad)
+      });
+      mostrarMensaje('Lote agregado correctamente.', 'exito');
+      setNuevaFecha('');
+      setNuevaCantidad('');
+      // Recargar lotes
+      const dataLotes = await inventarioApi.obtenerLotes(itemConfig.id_producto, itemConfig.id_almacen);
+      setLotes(dataLotes || []);
+    } catch (err) {
+      mostrarMensaje('Error al agregar lote', 'error');
+    }
+  };
   return (
     <div className="gestion-inventario">
       <h1>Gestión de Inventario</h1>
@@ -326,7 +384,62 @@ const GestionInventario = () => {
           </div>
         </div>
       )}
+      {/* MODAL DE CONFIGURACIÓN Y LOTES */}
+      {modalConfig && itemConfig && (
+        <div className="modal-overlay" onClick={() => setModalConfig(false)}>
+          <div className="modal-contenido modal-ancho" onClick={(e) => e.stopPropagation()}>
+            <h3>⚙️ Configurar Venta</h3>
+            <p className="modal-detalle"><strong>{itemConfig.producto_nombre}</strong></p>
 
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+              <div style={{ flex: 1 }}>
+                <label>Precio de Venta (Bs.):</label>
+                <input type="number" min="0" value={precioVenta} onChange={e => setPrecioVenta(e.target.value)} style={{ width: '100%', padding: '8px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label>Stock Mínimo:</label>
+                <input type="number" min="0" value={stockMinimo} onChange={e => setStockMinimo(e.target.value)} style={{ width: '100%', padding: '8px' }} />
+              </div>
+            </div>
+
+            <button onClick={handleGuardarConfiguracion} className="btn-primario" style={{ width: '100%', marginBottom: '20px' }}>
+              Guardar Precio y Stock
+            </button>
+
+            <h4>Gestión de Lotes (Fechas de Vencimiento)</h4>
+            <table style={{ width: '100%', fontSize: '13px', marginBottom: '15px' }}>
+              <thead>
+                <tr><th>Fecha Vencimiento</th><th>Cantidad</th></tr>
+              </thead>
+              <tbody>
+                {lotes.length === 0 ? (
+                  <tr><td colSpan="2" style={{ textAlign: 'center', fontStyle: 'italic' }}>No hay lotes registrados</td></tr>
+                ) : (
+                  lotes.map(l => (
+                    <tr key={l.id_lote}>
+                      <td>{new Date(l.fecha_vencimiento).toLocaleDateString()}</td>
+                      <td>{l.cantidad} uds</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+
+            <div style={{ background: '#f8f9fa', padding: '10px', borderRadius: '6px' }}>
+              <label>Agregar nuevo Lote:</label>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                <input type="date" value={nuevaFecha} onChange={e => setNuevaFecha(e.target.value)} style={{ flex: 2, padding: '8px' }} />
+                <input type="number" placeholder="Cant." value={nuevaCantidad} onChange={e => setNuevaCantidad(e.target.value)} style={{ flex: 1, padding: '8px' }} />
+                <button onClick={handleAgregarLote} className="btn-primario">+</button>
+              </div>
+            </div>
+
+            <div className="modal-botones" style={{ marginTop: '20px' }}>
+              <button onClick={() => setModalConfig(false)} className="btn-secundario">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

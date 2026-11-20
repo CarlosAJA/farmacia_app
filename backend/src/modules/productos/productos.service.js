@@ -196,6 +196,14 @@ const obtenerAlertas = async () => {
 
   return { stockBajo, porVencer, vencidos };
 };
+const configurarVenta = async (id, precio_venta, stock_minimo) => {
+  await pool.query(
+    `UPDATE productos SET precio_venta = ?, stock_minimo = ? WHERE id_producto = ?`,
+    [precio_venta, stock_minimo, id]
+  );
+  return { id_producto: id, mensaje: 'Configuración de venta actualizada' };
+};
+
 
 module.exports = {
   listarProductos,
@@ -204,4 +212,5 @@ module.exports = {
   actualizarProducto,
   eliminarProducto,
   obtenerAlertas,
+  configurarVenta,
 };

@@ -54,4 +54,32 @@ const alertas = async (req, res) => {
   }
 };
 
-module.exports = { listar, obtener, crear, actualizar, eliminar, alertas };
+const configurarVenta = async (req, res) => {
+  try {
+    const data = await service.configurarVenta(Number(req.params.id), req.body.precio_venta, req.body.stock_minimo);
+    res.json({ ok: true, data });
+  } catch (err) {
+    res.status(err.status || 500).json({ ok: false, error: err.message });
+  }
+};
+
+const configurar = async (req, res) => {
+  try {
+    const { precio_venta, stock_minimo } = req.body;
+    const data = await service.configurarVenta(req.params.id, precio_venta, stock_minimo);
+    res.json({ ok: true, data });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
+module.exports = { 
+  listar, 
+  obtener, 
+  crear, 
+  actualizar, 
+  eliminar, 
+  alertas, 
+  configurarVenta,
+  configurar,
+};
