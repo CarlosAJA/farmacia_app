@@ -32,9 +32,15 @@ export default function FacturaModal({ venta, onClose }) {
           <p><strong>Fecha:</strong> {fecha}</p>
           <p><strong>Vendedor:</strong> {venta.usuario_nombre}</p>
           
-          {venta.cliente_nombre && (
-            <div style={{ marginTop: '8px', borderTop: '1px dotted #ccc', paddingTop: '8px' }}>
-              <p><strong>Razón Social:</strong> {venta.cliente_nombre}</p>
+                    {venta.cliente_nombre && (
+            <div style={{ marginBottom: '8px', borderBottom: '1px dotted #ccc', paddingBottom: '8px' }}>
+              <p>
+                <strong>Razón Social:</strong> {
+                  venta.cliente_nit === '0' || venta.cliente_nit === 0 
+                    ? 'CONSUMIDOR FINAL' 
+                    : venta.cliente_nombre
+                }
+              </p>
               <p><strong>NIT/CI:</strong> {venta.cliente_nit}</p>
             </div>
           )}

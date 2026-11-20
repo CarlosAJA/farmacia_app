@@ -233,6 +233,14 @@ export default function PuntoVenta() {
   const buscarCliente = async () => {
     if (!nitCi.trim()) return;
     
+    // 👇 Si el cajero escribe "0", autocompletar Consumidor Final
+    if (nitCi === '0') {
+      setRazonSocial('CONSUMIDOR FINAL');
+      setCelular('');
+      setEmail('');
+      return;
+    }
+
     try {
       // 👇 Usamos la instancia api en lugar de fetch
       const res = await api.get(`/clientes/${nitCi}`);
