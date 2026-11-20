@@ -158,20 +158,47 @@ const crearVenta = async (data, id_usuario) => {
 
     const id_venta = result.insertId;
 
-    // 5. INSERT Detalles
+        // 5. INSERT Detalles y DESCONTAR STOCK CON FEFO
     for (const d of detalles) {
+      // Insertar el detalle de venta
       const subtotalLinea = Number(d.cantidad) * Number(d.precio_unitario);
       await connection.query(
         `INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)`,
         [id_venta, d.id_producto, d.cantidad, d.precio_unitario, subtotalLinea]
       );
-      
-      // 👇 AGREGAR ESTO: DESCONTAR STOCK Y REGISTRAR EN KARDEX
+
+      // 👇 LÓGICA FEFO (Descontar del lote más próximo a vencer) 👇
+      let cantidadPorDescontar = Number(d.cantidad);
+
+      // Traemos los lotes disponibles ordenados por fecha (el más viejo primero)
+      const [lotes] = await connection.query(
+        `SELECT id_lote, cantidad FROM lotes_inventario 
+         WHERE id_producto = ? AND id_almacen = ? AND cantidad > 0 
+         ORDER BY fecha_vencimiento ASC`,
+        [d.id_producto, id_almacen]
+      );
+
+      for (const lote of lotes) {
+        if (cantidadPorDescontar <= 0) break; // Si ya descontamos todo, salimos
+
+        const cantidadADescontarDelLote = Math.min(cantidadPorDescontar, lote.cantidad);
+
+        // Actualizar el lote
+        await connection.query(
+          'UPDATE lotes_inventario SET cantidad = cantidad - ? WHERE id_lote = ?',
+          [cantidadADescontarDelLote, lote.id_lote]
+        );
+
+        cantidadPorDescontar -= cantidadADescontarDelLote;
+      }
+
+      // También descontamos del stock general
       await connection.query(
         `UPDATE inventario SET cantidad = cantidad - ? WHERE id_producto = ? AND id_almacen = ?`,
         [d.cantidad, d.id_producto, id_almacen]
       );
 
+      // Registrar movimiento de Kardex
       await connection.query(
         `INSERT INTO movimientos_inventario (id_producto, id_almacen, tipo_movimiento, cantidad, motivo, id_usuario)
          VALUES (?, ?, 'salida', ?, ?, ?)`,
@@ -182,8 +209,7 @@ const crearVenta = async (data, id_usuario) => {
     // 6. UPDATE Estado
     await connection.query("UPDATE ventas SET estado = 'completada' WHERE id_venta = ?", [id_venta]);
 
-    // 6. UPDATE Estado
-    await connection.query("UPDATE ventas SET estado = 'completada' WHERE id_venta = ?", [id_venta]);
+    
 
     await connection.commit();
     return { id_venta, numero_factura, total };

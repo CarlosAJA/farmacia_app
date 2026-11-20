@@ -66,5 +66,31 @@ const transferir = async (req, res) => {
     res.status(err.status || 500).json({ ok: false, error: err.message });
   }
 };
+const agregarLote = async (req, res) => {
+  try {
+    const { id_producto, id_almacen, fecha_vencimiento, cantidad } = req.body;
+    const data = await service.agregarLote(id_producto, id_almacen, fecha_vencimiento, cantidad);
+    res.status(201).json({ ok: true, data, mensaje: data.mensaje });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+};
 
-module.exports = { listar, listarMovimientos, ajustar, transferir };
+const obtenerLotes = async (req, res) => {
+  try {
+    const { id_producto, id_almacen } = req.query;
+    const data = await service.obtenerLotes(id_producto, id_almacen);
+    res.json({ ok: true, data });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
+module.exports = { 
+  listar, 
+  listarMovimientos, 
+  ajustar, 
+  transferir,
+  agregarLote,
+  obtenerLotes,
+};

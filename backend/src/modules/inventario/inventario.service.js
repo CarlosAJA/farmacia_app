@@ -263,9 +263,56 @@ const transferirStock = async (id_producto, id_almacen_origen, id_almacen_destin
     connection.release();
   }
 };
+
+// 1. Agregar un nuevo lote a un producto
+const agregarLote = async (id_producto, id_almacen, fecha_vencimiento, cantidad) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // Insertar el lote
+    await connection.query(
+      `INSERT INTO lotes_inventario (id_producto, id_almacen, fecha_vencimiento, cantidad)
+       VALUES (?, ?, ?, ?)`,
+      [id_producto, id_almacen, fecha_vencimiento, cantidad]
+    );
+
+    // Asegurarnos de que el stock general en 'inventario' también refleje esta cantidad
+    // (Por si el producto se cargó manualmente y no venía de una compra)
+    await connection.query(
+      `INSERT INTO inventario (id_producto, id_almacen, cantidad) 
+       VALUES (?, ?, ?) 
+       ON DUPLICATE KEY UPDATE cantidad = cantidad + VALUES(cantidad)`,
+      [id_producto, id_almacen, cantidad]
+    );
+
+    await connection.commit();
+    return { mensaje: 'Lote registrado correctamente' };
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
+
+// 2. Obtener los lotes de un producto en un almacén específico
+const obtenerLotes = async (id_producto, id_almacen) => {
+  const [rows] = await pool.query(
+    `SELECT id_lote, fecha_vencimiento, cantidad, fecha_ingreso 
+     FROM lotes_inventario 
+     WHERE id_producto = ? AND id_almacen = ? AND cantidad > 0
+     ORDER BY fecha_vencimiento ASC`,
+    [id_producto, id_almacen]
+  );
+  return rows;
+};
+
 module.exports = {
   listarInventario,
   listarMovimientos,
   ajustarCantidad,
   transferirStock,
+  agregarLote,
+  obtenerLotes,
 };

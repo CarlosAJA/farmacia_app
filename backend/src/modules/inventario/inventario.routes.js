@@ -13,4 +13,7 @@ router.get('/movimientos', controller.listarMovimientos);
 router.put('/:id/ajustar', permitirRoles('admin', 'almacenero'), controller.ajustar);
 router.post('/transferir', permitirRoles('admin', 'almacenero'), controller.transferir);
 
+router.post('/lotes', controller.agregarLote); // Para crear un lote
+router.get('/lotes', controller.obtenerLotes); // Para ver los lotes de un producto
+
 module.exports = router;
