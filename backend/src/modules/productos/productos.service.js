@@ -52,9 +52,7 @@ const obtenerProductoPorId = async (id) => {
 };
 
 const crearProducto = async (data) => {
-  const pool = require('../../config/db.js');
   const connection = await pool.getConnection();
-  
   try {
     await connection.beginTransaction();
 
@@ -63,9 +61,8 @@ const crearProducto = async (data) => {
     if (data.categoria_nombre) {
       const nombreCat = data.categoria_nombre.trim().toUpperCase();
       const [cat] = await connection.query('SELECT id_categoria FROM categorias WHERE nombre = ?', [nombreCat]);
-      if (cat.length > 0) {
-        id_categoria = cat[0].id_categoria;
-      } else {
+      if (cat.length > 0) id_categoria = cat[0].id_categoria;
+      else {
         const [newCat] = await connection.query('INSERT INTO categorias (nombre) VALUES (?)', [nombreCat]);
         id_categoria = newCat.insertId;
       }
@@ -76,19 +73,18 @@ const crearProducto = async (data) => {
     if (data.laboratorio_nombre) {
       const nombreLab = data.laboratorio_nombre.trim().toUpperCase();
       const [lab] = await connection.query('SELECT id_laboratorio FROM laboratorios WHERE nombre = ?', [nombreLab]);
-      if (lab.length > 0) {
-        id_laboratorio = lab[0].id_laboratorio;
-      } else {
+      if (lab.length > 0) id_laboratorio = lab[0].id_laboratorio;
+      else {
         const [newLab] = await connection.query('INSERT INTO laboratorios (nombre) VALUES (?)', [nombreLab]);
         id_laboratorio = newLab.insertId;
       }
     }
 
-    // 3. INSERTAR PRODUCTO
+    // 3. INSERTAR PRODUCTO (Solo datos base)
     const [result] = await connection.query(
       `INSERT INTO productos 
-        (codigo, nombre, presentacion, descripcion, id_categoria, id_laboratorio, precio_compra, precio_venta, stock_minimo, requiere_receta, fecha_vencimiento, estado)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'activo')`,
+        (codigo, nombre, presentacion, descripcion, id_categoria, id_laboratorio, requiere_receta, estado)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'activo')`,
       [
         data.codigo.trim().toUpperCase(),
         data.nombre.trim().toUpperCase(),
@@ -96,17 +92,12 @@ const crearProducto = async (data) => {
         data.descripcion ? data.descripcion.trim().toUpperCase() : null,
         id_categoria,
         id_laboratorio,
-        data.precio_compra || 0,
-        data.precio_venta || 0,
-        data.stock_minimo || 0,
         data.requiere_receta ? 1 : 0,
-        data.fecha_vencimiento || null,
       ]
     );
 
     await connection.commit();
     return result.insertId;
-
   } catch (err) {
     await connection.rollback();
     throw err;
@@ -116,45 +107,37 @@ const crearProducto = async (data) => {
 };
 
 const actualizarProducto = async (id, data) => {
-  const pool = require('../../config/db.js'); // Asegúrate de importar el pool
   const connection = await pool.getConnection();
-  
   try {
     await connection.beginTransaction();
 
-    // 1. BUSCAR O CREAR CATEGORÍA
+    // (Misma lógica de categoría y laboratorio)
     let id_categoria = null;
     if (data.categoria_nombre) {
       const nombreCat = data.categoria_nombre.trim().toUpperCase();
       const [cat] = await connection.query('SELECT id_categoria FROM categorias WHERE nombre = ?', [nombreCat]);
-      if (cat.length > 0) {
-        id_categoria = cat[0].id_categoria;
-      } else {
+      if (cat.length > 0) id_categoria = cat[0].id_categoria;
+      else {
         const [newCat] = await connection.query('INSERT INTO categorias (nombre) VALUES (?)', [nombreCat]);
         id_categoria = newCat.insertId;
       }
     }
-
-    // 2. BUSCAR O CREAR LABORATORIO
     let id_laboratorio = null;
     if (data.laboratorio_nombre) {
       const nombreLab = data.laboratorio_nombre.trim().toUpperCase();
       const [lab] = await connection.query('SELECT id_laboratorio FROM laboratorios WHERE nombre = ?', [nombreLab]);
-      if (lab.length > 0) {
-        id_laboratorio = lab[0].id_laboratorio;
-      } else {
+      if (lab.length > 0) id_laboratorio = lab[0].id_laboratorio;
+      else {
         const [newLab] = await connection.query('INSERT INTO laboratorios (nombre) VALUES (?)', [nombreLab]);
         id_laboratorio = newLab.insertId;
       }
     }
 
-    // 3. ACTUALIZAR PRODUCTO
+    // UPDATE sin precios ni fechas
     await connection.query(
       `UPDATE productos 
        SET codigo = ?, nombre = ?, presentacion = ?, descripcion = ?, 
-           id_categoria = ?, id_laboratorio = ?, precio_compra = ?, 
-           precio_venta = ?, stock_minimo = ?, requiere_receta = ?, 
-           fecha_vencimiento = ?
+           id_categoria = ?, id_laboratorio = ?, requiere_receta = ?
        WHERE id_producto = ?`,
       [
         data.codigo.trim().toUpperCase(),
@@ -163,11 +146,7 @@ const actualizarProducto = async (id, data) => {
         data.descripcion ? data.descripcion.trim().toUpperCase() : null,
         id_categoria,
         id_laboratorio,
-        data.precio_compra || 0,
-        data.precio_venta || 0,
-        data.stock_minimo || 0,
         data.requiere_receta ? 1 : 0,
-        data.fecha_vencimiento || null,
         id
       ]
     );

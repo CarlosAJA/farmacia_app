@@ -197,16 +197,14 @@ const recibirCompra = async (id, id_usuario) => {
   try {
     await connection.beginTransaction();
 
-    // 1. Verificar la compra
     const [rows] = await connection.query('SELECT * FROM compras WHERE id_compra = ?', [id]);
     if (rows.length === 0) throw new Error('Compra no encontrada');
-    if (rows[0].estado !== 'pendiente') throw new Error('La compra ya fue procesada o cancelada');
+    if (rows[0].estado !== 'pendiente') throw new Error('La compra ya fue procesada');
 
-    // 2. Obtener los detalles de la compra
     const [detalles] = await connection.query('SELECT * FROM detalle_compra WHERE id_compra = ?', [id]);
 
-    // 3. Actualizar el inventario y registrar movimientos (Lógica del Trigger)
     for (const detalle of detalles) {
+      // 1. Sumar al stock general
       await connection.query(
         `INSERT INTO inventario (id_producto, id_almacen, cantidad) 
          VALUES (?, ?, ?) 
@@ -214,6 +212,7 @@ const recibirCompra = async (id, id_usuario) => {
         [detalle.id_producto, rows[0].id_almacen, detalle.cantidad]
       );
 
+      // 2. Registrar en Kardex
       await connection.query(
         `INSERT INTO movimientos_inventario (id_producto, id_almacen, tipo_movimiento, cantidad, motivo, id_usuario)
          VALUES (?, ?, 'entrada', ?, ?, ?)`,
@@ -221,7 +220,6 @@ const recibirCompra = async (id, id_usuario) => {
       );
     }
 
-    // 4. Cambiar el estado de la compra
     await connection.query("UPDATE compras SET estado = 'recibida' WHERE id_compra = ?", [id]);
 
     await connection.commit();
