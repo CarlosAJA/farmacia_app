@@ -428,7 +428,14 @@ const GestionInventario = () => {
                 ) : (
                   lotes.map(l => (
                     <tr key={l.id_lote}>
-                      <td>{new Date(l.fecha_vencimiento).toLocaleDateString()}</td>
+                      {/* 👇 FORMATEO SEGURO DE FECHA 👇 */}
+                      <td>
+                        {(() => {
+                          const soloFecha = String(l.fecha_vencimiento).split('T')[0];
+                          const [year, month, day] = soloFecha.split('-');
+                          return `${day}/${month}/${year}`;
+                        })()}
+                      </td>
                       <td>{l.cantidad} uds</td>
                     </tr>
                   ))
