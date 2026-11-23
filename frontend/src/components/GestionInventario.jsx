@@ -136,6 +136,11 @@ const GestionInventario = () => {
         return <span className={`badge-stock ${clase}`}>{item.cantidad}</span>;
       },
     },
+    { 
+      key: 'precio_venta', 
+      label: 'P. Venta', 
+      render: (item) => item.precio_venta ? `Bs. ${Number(item.precio_venta).toFixed(2)}` : '—' 
+    },
     {
       key: 'stock_minimo',
       label: 'Mínimo',
@@ -193,6 +198,11 @@ const GestionInventario = () => {
         key: 'cantidad',
         label: 'Cantidad',
         exportValue: (v) => Number(v.cantidad)
+      },
+      { 
+        key: 'precio_venta', 
+        label: 'Precio Venta (Bs.)', 
+        exportValue: (item) => item.precio_venta ? Number(item.precio_venta) : 0 
       },
       { 
         key: 'stock_minimo',
