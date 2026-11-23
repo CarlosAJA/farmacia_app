@@ -61,16 +61,19 @@ export default function GestionProductos() {
         setExito('Producto creado correctamente.');
       }
       
-      // Limpiamos el formulario y salimos del modo edición
+      // Limpiamos el formulario SIEMPRE al terminar con éxito
       setForm(FORM_VACIO);
       setEditandoId(null);
       cargar();
     } catch (e) {
-      setError(e.response?.data?.error || 'Error al guardar');
+      setError(e.response?.data?.error || 'Error al guardar el producto');
     }
   };
 
   const handleEditar = (p) => {
+    // 👇 BLINDAJE: Detecta si el ID viene como id_producto o como id
+    const idReal = p.id_producto || p.id; 
+
     setForm({
       codigo: p.codigo,
       nombre: p.nombre,
@@ -80,7 +83,8 @@ export default function GestionProductos() {
       laboratorio_nombre: p.laboratorio_nombre || '',
       requiere_receta: p.requiere_receta === 1 || p.requiere_receta === true,
     });
-    setEditandoId(p.id_producto); // 👈 Usamos id_producto, no id
+    
+    setEditandoId(idReal);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -192,7 +196,7 @@ export default function GestionProductos() {
           <>
             <button type="button" onClick={() => handleEditar(p)} className="btn-editar">Editar</button>
             {p.estado === 'activo' && (
-              <button type="button" onClick={() => handleEliminar(p.id_producto)} className="btn-eliminar">
+              <button type="button" onClick={() => handleEliminar(p.id_producto || p.id)} className="btn-eliminar">
                 Desactivar
               </button>
             )}
