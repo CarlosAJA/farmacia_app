@@ -270,15 +270,28 @@ const agregarLote = async (id_producto, id_almacen, fecha_vencimiento, cantidad)
   try {
     await connection.beginTransaction();
 
-    // Insertar el lote
-    await connection.query(
-      `INSERT INTO lotes_inventario (id_producto, id_almacen, fecha_vencimiento, cantidad)
-       VALUES (?, ?, ?, ?)`,
-      [id_producto, id_almacen, fecha_vencimiento, cantidad]
+    // 1. Verificar si ya existe un lote con esa misma fecha
+    const [existe] = await connection.query(
+      'SELECT id_lote FROM lotes_inventario WHERE id_producto = ? AND id_almacen = ? AND fecha_vencimiento = ?',
+      [id_producto, id_almacen, fecha_vencimiento]
     );
 
-    // Asegurarnos de que el stock general en 'inventario' también refleje esta cantidad
-    // (Por si el producto se cargó manualmente y no venía de una compra)
+    if (existe.length > 0) {
+      // 2A. Si existe, le sumamos la cantidad a ese lote
+      await connection.query(
+        'UPDATE lotes_inventario SET cantidad = cantidad + ? WHERE id_lote = ?',
+        [cantidad, existe[0].id_lote]
+      );
+    } else {
+      // 2B. Si no existe, creamos el nuevo lote
+      await connection.query(
+        `INSERT INTO lotes_inventario (id_producto, id_almacen, fecha_vencimiento, cantidad)
+         VALUES (?, ?, ?, ?)`,
+        [id_producto, id_almacen, fecha_vencimiento, cantidad]
+      );
+    }
+
+    // 3. Actualizar el stock general en la tabla 'inventario'
     await connection.query(
       `INSERT INTO inventario (id_producto, id_almacen, cantidad) 
        VALUES (?, ?, ?) 
@@ -287,7 +300,7 @@ const agregarLote = async (id_producto, id_almacen, fecha_vencimiento, cantidad)
     );
 
     await connection.commit();
-    return { mensaje: 'Lote registrado correctamente' };
+    return { mensaje: existe.length > 0 ? 'Cantidad sumada al lote existente' : 'Lote registrado correctamente' };
   } catch (err) {
     await connection.rollback();
     throw err;
