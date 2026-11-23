@@ -60,6 +60,11 @@ export default function GestionMovimientos() {
       render: (m) => badgeTipo(m.tipo_movimiento),
     },
     { key: 'cantidad', label: 'Cant.', render: (m) => <strong>{m.cantidad}</strong> },
+    { 
+      key: 'monto_total', 
+      label: 'Subtotal', 
+      render: (m) => m.precio_venta ? `Bs. ${(Number(m.precio_venta) * Number(m.cantidad)).toFixed(2)}` : '—' 
+    },
     { key: 'motivo', label: 'Motivo' },
   ];
 const handleExportar = () => {
@@ -70,6 +75,16 @@ const handleExportar = () => {
       { key: 'producto_nombre', label: 'Producto' },
       { key: 'almacen_nombre', label: 'Almacén' },
       { key: 'cantidad', label: 'Cantidad', exportValue: (m) => Number(m.cantidad) },
+       { 
+        key: 'precio_venta', 
+        label: 'Precio Venta (Bs.)', 
+        exportValue: (m) => Number(m.precio_venta) || 0 
+      },
+      { 
+        key: 'monto_total', 
+        label: 'Subtotal (Bs.)', 
+        exportValue: (m) => (Number(m.precio_venta) * Number(m.cantidad)) || 0 
+      },
       { key: 'usuario_nombre', label: 'Usuario' },
       { key: 'motivo', label: 'Motivo' },
     ];

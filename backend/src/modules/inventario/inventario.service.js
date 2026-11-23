@@ -90,6 +90,7 @@ const listarMovimientos = async (filtros = {}) => {
       p.id_producto,
       p.codigo,
       p.nombre AS producto_nombre,
+      p.precio_venta,
       a.id_almacen,
       a.nombre AS almacen_nombre,
       s.nombre AS sucursal_nombre,
