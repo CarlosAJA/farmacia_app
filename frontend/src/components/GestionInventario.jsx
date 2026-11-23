@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+//import axios from 'axios';
+import api from '../api/axios';
 import Tabla from './Tabla';
 import { inventarioApi } from '../api/inventario';
 import { exportarAExcel } from '../utils/excelUtils';
@@ -69,8 +70,8 @@ const GestionInventario = () => {
     try {
       // Hacemos las dos peticiones al mismo tiempo
       const [sucRes, almRes] = await Promise.all([
-        axios.get('/sucursales', headersAuth()),
-        axios.get('/catalogos/almacenes', headersAuth())
+        api.get('/sucursales', headersAuth()),
+        api.get('/catalogos/almacenes', headersAuth())
       ]);
       setSucursales(sucRes.data.data || []);
       setAlmacenes(almRes.data.data || []); // 👈 Ahora sí llenamos los almacenes
