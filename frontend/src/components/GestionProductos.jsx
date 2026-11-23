@@ -93,7 +93,7 @@ export default function GestionProductos() {
       requiere_receta: p.requiere_receta === 1 || p.requiere_receta === true,
       fecha_vencimiento: p.fecha_vencimiento?.split('T')[0] || '',
     });
-    setEditandoId(p.id);
+    setEditandoId(p.id_producto);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -270,11 +270,23 @@ export default function GestionProductos() {
         ]}
         paginacionActiva={true}
         porPaginaInicial={10}
-        acciones={(p) => (
+         acciones={(p) => (
           <>
-            <button onClick={() => handleEditar(p)} className="btn-editar">Editar</button>
+            <button 
+              type="button" 
+              onClick={() => handleEditar(p)} 
+              className="btn-editar"
+            >
+              Editar
+            </button>
             {p.estado === 'activo' && (
-              <button onClick={() => handleEliminar(p.id)} className="btn-eliminar">Desactivar</button>
+              <button 
+                type="button" 
+                onClick={() => handleEliminar(p.id_producto)} // 👈 CAMBIO AQUÍ (antes decía p.id)
+                className="btn-eliminar"
+              >
+                Desactivar
+              </button>
             )}
           </>
         )}
