@@ -182,3 +182,36 @@
     border-right-color: var(--border);
   }
 }
+/* ========================================= */
+/* ADAPTACIÓN AUTOMÁTICA PARA PANTALLAS DE LAPTOP */
+/* ========================================= */
+
+/* Para pantallas de hasta 1440px de ancho (Laptops estándar) */
+@media screen and (max-width: 1440px) {
+  html {
+    font-size: 14px; /* Reduce un poco el tamaño base */
+  }
+  body {
+    zoom: 0.9; /* Hace un "zoom out" general del 90% (Funciona en Chrome y Edge) */
+  }
+}
+
+/* Para pantallas de hasta 1280px de ancho (Laptops pequeñas) */
+@media screen and (max-width: 1280px) {
+  html {
+    font-size: 13px;
+  }
+  body {
+    zoom: 0.85; /* Reduce al 85% */
+  }
+}
+
+/* Para pantallas de hasta 1024px de ancho (Tablets o pantallas muy pequeñas) */
+@media screen and (max-width: 1024px) {
+  html {
+    font-size: 12px;
+  }
+  body {
+    zoom: 0.75; /* Reduce al 75% */
+  }
+}
