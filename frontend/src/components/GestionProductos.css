@@ -56,9 +56,10 @@
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* auto-fit hace que en pantallas pequeñas los inputs se pongan uno debajo del otro sin salirse */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
   gap: 15px;
-  align-items: end; /* 👈 ESTA ES LA SOLUCIÓN MÁGICA */
+  width: 100%;
 }
 
 .form-grid input,

@@ -1,11 +1,21 @@
 /* frontend/src/components/Tabla.css */
+.tabla-wrapper {
+  width: 100%;
+}
+
+.tabla-scroll {
+  width: 100%;
+  overflow-x: auto; /* 👈 Hace que la tabla tenga scroll horizontal si no cabe */
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
 .tabla-generica {
   width: 100%;
+  min-width: 950px; /* 👈 Obliga a la tabla a medir al menos esto, evitando que se aplasten las columnas */
   border-collapse: collapse;
   background: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-  overflow: hidden;
 }
 
 .tabla-generica thead {
